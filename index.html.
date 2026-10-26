@@ -1,0 +1,748 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#17251e">
+  <title>Church Community | Debt Accounts</title>
+
+  <style>
+    :root {
+      --green: #243c2f;
+      --green-light: #365944;
+      --gold: #d6b56d;
+      --background: #f5f3ed;
+      --white: #ffffff;
+      --text: #252a26;
+      --muted: #6b746e;
+      --border: #e4e5df;
+      --red: #a53d37;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--background);
+      color: var(--text);
+    }
+
+    header {
+      background: var(--green);
+      color: white;
+      padding: 34px 20px 38px;
+      text-align: center;
+      border-bottom: 4px solid var(--gold);
+    }
+
+    .cross {
+      color: var(--gold);
+      font-size: 35px;
+      margin-bottom: 8px;
+    }
+
+    header h1 {
+      font-family: Georgia, serif;
+      font-size: 29px;
+      font-weight: 500;
+      margin: 0 0 9px;
+    }
+
+    header p {
+      color: #e2e8e1;
+      margin: 0;
+      font-size: 14px;
+    }
+
+    main {
+      width: min(100% - 28px, 480px);
+      margin: 28px auto;
+      min-height: 330px;
+    }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px;
+      margin-bottom: 18px;
+      box-shadow: 0 5px 20px rgba(27, 43, 32, 0.04);
+    }
+
+    h2 {
+      font-family: Georgia, serif;
+      font-size: 25px;
+      font-weight: 500;
+      margin: 0 0 10px;
+    }
+
+    .description {
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 14px;
+      margin: 0 0 22px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 650;
+      margin: 17px 0 8px;
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid #d7dbd5;
+      background: #fff;
+      border-radius: 10px;
+      padding: 14px;
+      font: inherit;
+      font-size: 16px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--green-light);
+      box-shadow: 0 0 0 3px rgba(54, 89, 68, 0.12);
+    }
+
+    button {
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      background: var(--green);
+      color: white;
+      padding: 15px;
+      margin-top: 18px;
+      font: inherit;
+      font-weight: 650;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: var(--green-light);
+    }
+
+    button.secondary {
+      background: #edf0eb;
+      color: var(--green);
+    }
+
+    button.danger {
+      background: #f8e9e7;
+      color: var(--red);
+    }
+
+    .notice {
+      border-radius: 10px;
+      background: #f3f5f0;
+      color: #465449;
+      padding: 13px;
+      font-size: 13px;
+      line-height: 1.55;
+      margin-top: 18px;
+    }
+
+    .warning {
+      background: #fff5df;
+      color: #775b24;
+    }
+
+    .error {
+      background: #fae9e7;
+      color: #8e302b;
+    }
+
+    .success {
+      background: #e8f4e9;
+      color: #285b34;
+    }
+
+    .balance-box {
+      background: var(--green);
+      color: white;
+      border-radius: 14px;
+      padding: 22px;
+      margin: 22px 0 16px;
+    }
+
+    .balance-box p {
+      margin: 0 0 8px;
+      color: #e0e8df;
+      font-size: 13px;
+    }
+
+    .balance {
+      font-size: 38px;
+      font-weight: 700;
+      letter-spacing: -1px;
+    }
+
+    .account-detail {
+      border-bottom: 1px solid var(--border);
+      padding: 13px 0;
+      font-size: 14px;
+    }
+
+    .account-detail span {
+      color: var(--muted);
+      display: block;
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .small {
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    .demo-code {
+      font-family: monospace;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .staff-account {
+      padding: 15px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      line-height: 1.7;
+      overflow-wrap: anywhere;
+    }
+
+    .staff-account:last-child {
+      border-bottom: none;
+    }
+
+    .staff-account strong {
+      font-size: 15px;
+    }
+
+    .staff-account button {
+      margin-top: 10px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 18px 20px 28px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    footer a {
+      display: inline-block;
+      color: #69766c;
+      font-size: 10px;
+      margin-top: 18px;
+      text-decoration: none;
+      opacity: 0.65;
+    }
+
+    footer a:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+
+    .divider {
+      border: 0;
+      border-top: 1px solid var(--border);
+      margin: 22px 0;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="cross">✝</div>
+  <h1>Church Community</h1>
+  <p>Debt Accounts &amp; Payments</p>
+</header>
+
+<main>
+
+  <!-- CUSTOMER PHONE LOGIN -->
+  <section id="loginSection" class="card">
+    <h2>Welcome</h2>
+    <p class="description">
+      Sign in with the mobile number registered with the church
+      to view your outstanding balance.
+    </p>
+
+    <label for="phone">Registered mobile number</label>
+    <input
+      id="phone"
+      type="tel"
+      autocomplete="tel"
+      placeholder="+44 7700 900000"
+    >
+
+    <button onclick="sendDemoCode()">Send verification code</button>
+
+    <div id="codeSection" class="hidden">
+      <label for="verificationCode">Verification code</label>
+      <input
+        id="verificationCode"
+        inputmode="numeric"
+        autocomplete="one-time-code"
+        maxlength="6"
+        placeholder="Enter 6-digit code"
+      >
+
+      <button onclick="verifyDemoCode()">Verify and continue</button>
+    </div>
+
+    <div id="loginMessage" aria-live="polite"></div>
+
+    <div class="notice warning">
+      <strong>Demo website:</strong> No real SMS is sent.
+      The demonstration code is shown on screen. This must be
+      replaced with a secure SMS verification service before launch.
+    </div>
+  </section>
+
+  <!-- CUSTOMER ACCOUNT -->
+  <section id="customerSection" class="card hidden">
+    <h2>Your account</h2>
+    <p class="description">Here is your current church account balance.</p>
+
+    <div class="account-detail">
+      <span>Account holder</span>
+      <strong id="customerName"></strong>
+    </div>
+
+    <div class="account-detail">
+      <span>Registered mobile number</span>
+      <strong id="customerPhone"></strong>
+    </div>
+
+    <div class="balance-box">
+      <p>Outstanding balance</p>
+      <div class="balance" id="customerBalance">£0.00</div>
+    </div>
+
+    <button onclick="startDemoPayment()">Pay online with myPOS</button>
+
+    <div class="notice warning">
+      <strong>Online payments are not connected yet.</strong>
+      This button is only a demonstration. Real payments require
+      a secure myPOS integration.
+    </div>
+
+    <hr class="divider">
+
+    <div class="notice">
+      <strong>Paying by cash?</strong><br>
+      Cash payments must be made in person at the church.
+      Please speak to a member of staff. Cash payments are not
+      recorded or deducted from your online balance by this demo.
+    </div>
+
+    <button class="secondary" onclick="logout()">Sign out</button>
+  </section>
+
+  <!-- STAFF CODE ENTRY -->
+  <section id="staffLoginSection" class="card hidden">
+    <h2>Staff access</h2>
+    <p class="description">
+      Enter the staff access code to open account management.
+    </p>
+
+    <label for="staffCode">Staff access code</label>
+    <input
+      id="staffCode"
+      type="password"
+      autocomplete="off"
+      placeholder="Enter staff code"
+    >
+
+    <button onclick="checkStaffCode()">Continue</button>
+    <button class="secondary" onclick="backToLogin()">Back</button>
+
+    <div id="staffLoginMessage" aria-live="polite"></div>
+  </section>
+
+  <!-- STAFF DASHBOARD -->
+  <section id="staffSection" class="card hidden">
+    <h2>Staff dashboard</h2>
+    <p class="description">
+      Create a member account and enter their total outstanding debt.
+    </p>
+
+    <form id="accountForm">
+      <label for="fullName">Customer full name</label>
+      <input
+        id="fullName"
+        type="text"
+        autocomplete="name"
+        required
+        placeholder="Enter full name"
+      >
+
+      <label for="newPhone">Registered mobile number</label>
+      <input
+        id="newPhone"
+        type="tel"
+        autocomplete="tel"
+        required
+        placeholder="+44 7700 900000"
+      >
+
+      <label for="amountOwed">Total amount owed (£)</label>
+      <input
+        id="amountOwed"
+        type="number"
+        min="0"
+        max="100000"
+        step="0.01"
+        required
+        placeholder="25.00"
+      >
+
+      <button type="submit">Create customer account</button>
+    </form>
+
+    <div id="staffMessage" aria-live="polite"></div>
+
+    <hr class="divider">
+
+    <h2>Customer accounts</h2>
+    <p class="small">
+      Accounts created here are held only in this browser session.
+      They are not saved to a permanent database.
+    </p>
+
+    <div id="accountList"></div>
+
+    <button class="secondary" onclick="logout()">Sign out of staff</button>
+
+    <div class="notice warning">
+      <strong>Security warning:</strong> This staff area is a
+      demonstration, not a secure administration system.
+      The access code is visible in the website's source code.
+      Do not use real customer records until a secure backend
+      and staff authentication system are connected.
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Church Community Debt Accounts
+  <br>
+  Please contact church staff if you need help with your account.
+  <br>
+  <a href="#" onclick="openStaffLogin(event)">Staff access</a>
+</footer>
+
+<script>
+  /*
+    DEMO ONLY.
+
+    These accounts and codes are not secure.
+    The data is kept in browser memory and disappears
+    when the page is refreshed or closed.
+
+    Demo customer:
+    Phone: +447700900000
+    Verification code: 123456
+
+    Demo staff code: ChangeMe123
+  */
+
+  const DEMO_VERIFICATION_CODE = "123456";
+  const DEMO_STAFF_CODE = "ChangeMe123";
+
+  let accounts = [
+    {
+      name: "Demo Customer",
+      phone: "+447700900000",
+      balance: 25.00
+    }
+  ];
+
+  let pendingPhone = "";
+
+  const $ = (id) => document.getElementById(id);
+
+  function normalisePhone(phone) {
+    return phone.replace(/[\s()-]/g, "");
+  }
+
+  function formatMoney(amount) {
+    return new Intl.NumberFormat("en-GB", {
+      style: "currency",
+      currency: "GBP"
+    }).format(amount);
+  }
+
+  function hideAllSections() {
+    [
+      "loginSection",
+      "customerSection",
+      "staffLoginSection",
+      "staffSection"
+    ].forEach(id => $(id).classList.add("hidden"));
+  }
+
+  function showMessage(elementId, message, type = "") {
+    const element = $(elementId);
+    element.className = type ? "notice " + type : "notice";
+    element.textContent = message;
+  }
+
+  function sendDemoCode() {
+    const phone = normalisePhone($("phone").value);
+
+    if (!phone || phone.length < 7) {
+      showMessage(
+        "loginMessage",
+        "Please enter a valid registered mobile number.",
+        "error"
+      );
+      return;
+    }
+
+    const account = accounts.find(
+      item => normalisePhone(item.phone) === phone
+    );
+
+    if (!account) {
+      showMessage(
+        "loginMessage",
+        "This number is not registered. Please contact church staff.",
+        "error"
+      );
+      return;
+    }
+
+    pendingPhone = phone;
+    $("codeSection").classList.remove("hidden");
+
+    showMessage(
+      "loginMessage",
+      "Demo mode only: your demonstration verification code is " +
+      DEMO_VERIFICATION_CODE +
+      ". No SMS has been sent.",
+      "warning"
+    );
+  }
+
+  function verifyDemoCode() {
+    const code = $("verificationCode").value.trim();
+
+    if (code !== DEMO_VERIFICATION_CODE) {
+      showMessage(
+        "loginMessage",
+        "Incorrect verification code. Please try again.",
+        "error"
+      );
+      return;
+    }
+
+    const account = accounts.find(
+      item => normalisePhone(item.phone) === pendingPhone
+    );
+
+    if (!account) {
+      showMessage(
+        "loginMessage",
+        "Account not found. Please contact church staff.",
+        "error"
+      );
+      return;
+    }
+
+    $("customerName").textContent = account.name;
+    $("customerPhone").textContent = account.phone;
+    $("customerBalance").textContent = formatMoney(account.balance);
+
+    hideAllSections();
+    $("customerSection").classList.remove("hidden");
+  }
+
+  function startDemoPayment() {
+    alert(
+      "myPOS is not connected yet.\n\n" +
+      "To accept real payments, the website needs a secure server " +
+      "that creates the payment request and verifies the result " +
+      "with myPOS."
+    );
+  }
+
+  function openStaffLogin(event) {
+    event.preventDefault();
+    hideAllSections();
+    $("staffCode").value = "";
+    $("staffLoginMessage").textContent = "";
+    $("staffLoginSection").classList.remove("hidden");
+  }
+
+  function checkStaffCode() {
+    if ($("staffCode").value !== DEMO_STAFF_CODE) {
+      showMessage(
+        "staffLoginMessage",
+        "Incorrect staff code.",
+        "error"
+      );
+      return;
+    }
+
+    hideAllSections();
+    $("staffSection").classList.remove("hidden");
+    renderAccounts();
+  }
+
+  $("accountForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const name = $("fullName").value.trim();
+    const phone = normalisePhone($("newPhone").value);
+    const balance = Number($("amountOwed").value);
+
+    if (!name || !phone || phone.length < 7) {
+      showMessage(
+        "staffMessage",
+        "Please enter a full name and valid mobile number.",
+        "error"
+      );
+      return;
+    }
+
+    if (!Number.isFinite(balance) || balance < 0 || balance > 100000) {
+      showMessage(
+        "staffMessage",
+        "Please enter an amount between £0 and £100,000.",
+        "error"
+      );
+      return;
+    }
+
+    const duplicate = accounts.some(
+      item => normalisePhone(item.phone) === phone
+    );
+
+    if (duplicate) {
+      showMessage(
+        "staffMessage",
+        "An account already exists for this mobile number.",
+        "error"
+      );
+      return;
+    }
+
+    accounts.push({
+      name: name,
+      phone: phone,
+      balance: Math.round(balance * 100) / 100
+    });
+
+    $("accountForm").reset();
+
+    showMessage(
+      "staffMessage",
+      "Demo account created successfully. It will disappear when this page is refreshed.",
+      "success"
+    );
+
+    renderAccounts();
+  });
+
+  function renderAccounts() {
+    const list = $("accountList");
+    list.innerHTML = "";
+
+    if (accounts.length === 0) {
+      list.textContent = "No customer accounts have been created.";
+      return;
+    }
+
+    accounts.forEach((account, index) => {
+      const item = document.createElement("div");
+      item.className = "staff-account";
+
+      const title = document.createElement("strong");
+      title.textContent = account.name;
+
+      const details = document.createElement("div");
+      details.textContent =
+        account.phone + " · Balance: " + formatMoney(account.balance);
+
+      const editLabel = document.createElement("label");
+      editLabel.textContent = "Update balance (£)";
+      editLabel.htmlFor = "balance-" + index;
+
+      const balanceInput = document.createElement("input");
+      balanceInput.id = "balance-" + index;
+      balanceInput.type = "number";
+      balanceInput.min = "0";
+      balanceInput.max = "100000";
+      balanceInput.step = "0.01";
+      balanceInput.value = account.balance.toFixed(2);
+
+      const updateButton = document.createElement("button");
+      updateButton.type = "button";
+      updateButton.textContent = "Update balance";
+
+      updateButton.addEventListener("click", function() {
+        const newBalance = Number(balanceInput.value);
+
+        if (
+          !Number.isFinite(newBalance) ||
+          newBalance < 0 ||
+          newBalance > 100000
+        ) {
+          alert("Please enter a valid balance.");
+          return;
+        }
+
+        accounts[index].balance = Math.round(newBalance * 100) / 100;
+        renderAccounts();
+
+        showMessage(
+          "staffMessage",
+          "Balance updated for this demo session.",
+          "success"
+        );
+      });
+
+      item.appendChild(title);
+      item.appendChild(details);
+      item.appendChild(editLabel);
+      item.appendChild(balanceInput);
+      item.appendChild(updateButton);
+      list.appendChild(item);
+    });
+  }
+
+  function logout() {
+    pendingPhone = "";
+    $("phone").value = "";
+    $("verificationCode").value = "";
+    $("staffCode").value = "";
+    $("codeSection").classList.add("hidden");
+    $("loginMessage").textContent = "";
+    $("staffLoginMessage").textContent = "";
+
+    hideAllSections();
+    $("loginSection").classList.remove("hidden");
+  }
+
+  function backToLogin() {
+    hideAllSections();
+    $("loginSection").classList.remove("hidden");
+  }
+</script>
+
+</body>
+</html>
