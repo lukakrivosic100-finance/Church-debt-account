@@ -1,468 +1,423 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#17251e">
-  <title>Church Community | Debt Accounts</title>
-
+  <title>Church Community - Debt Accounts</title>
   <style>
     :root {
-      --green: #243c2f;
-      --green-light: #365944;
-      --gold: #d6b56d;
-      --background: #f5f3ed;
+      --navy: #142b45;
+      --blue: #245b86;
+      --gold: #d8b56d;
+      --background: #f3f5f8;
       --white: #ffffff;
-      --text: #252a26;
-      --muted: #6b746e;
-      --border: #e4e5df;
-      --red: #a53d37;
+      --text: #202b38;
+      --muted: #697586;
+      --border: #dce2e9;
+      --danger: #a52b2b;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
       background: var(--background);
       color: var(--text);
+      min-height: 100vh;
     }
 
     header {
-      background: var(--green);
+      background: var(--navy);
       color: white;
-      padding: 34px 20px 38px;
-      text-align: center;
+      padding: 24px 18px;
       border-bottom: 4px solid var(--gold);
     }
 
-    .cross {
-      color: var(--gold);
-      font-size: 35px;
-      margin-bottom: 8px;
+    .header-inner {
+      max-width: 900px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
     }
 
-    header h1 {
-      font-family: Georgia, serif;
-      font-size: 29px;
-      font-weight: 500;
-      margin: 0 0 9px;
+    .brand {
+      font-size: 23px;
+      font-weight: bold;
+      letter-spacing: .2px;
     }
 
-    header p {
-      color: #e2e8e1;
-      margin: 0;
+    .subtitle {
+      margin-top: 7px;
       font-size: 14px;
+      color: #e1e8f0;
+    }
+
+    select, input, button {
+      font: inherit;
+    }
+
+    select, input {
+      width: 100%;
+      padding: 13px;
+      margin-top: 7px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: white;
+      color: var(--text);
+    }
+
+    #language {
+      width: auto;
+      min-width: 150px;
+      margin: 0;
+      border: 1px solid #ffffff60;
+      background: white;
+      color: var(--navy);
     }
 
     main {
-      width: min(100% - 28px, 480px);
-      margin: 28px auto;
-      min-height: 330px;
+      max-width: 600px;
+      margin: 34px auto;
+      padding: 0 16px;
     }
 
     .card {
       background: var(--white);
       border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 24px;
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 7px 25px #172b440a;
       margin-bottom: 18px;
-      box-shadow: 0 5px 20px rgba(27, 43, 32, 0.04);
+    }
+
+    h1 {
+      font-size: 25px;
+      margin: 0 0 10px;
+      color: var(--navy);
     }
 
     h2 {
-      font-family: Georgia, serif;
-      font-size: 25px;
-      font-weight: 500;
-      margin: 0 0 10px;
+      font-size: 19px;
+      margin: 0 0 16px;
+      color: var(--navy);
     }
 
-    .description {
-      color: var(--muted);
+    p {
       line-height: 1.55;
+    }
+
+    .muted {
+      color: var(--muted);
       font-size: 14px;
-      margin: 0 0 22px;
     }
 
     label {
       display: block;
-      font-size: 13px;
-      font-weight: 650;
-      margin: 17px 0 8px;
-    }
-
-    input {
-      width: 100%;
-      border: 1px solid #d7dbd5;
-      background: #fff;
-      border-radius: 10px;
-      padding: 14px;
-      font: inherit;
-      font-size: 16px;
-      outline: none;
-    }
-
-    input:focus {
-      border-color: var(--green-light);
-      box-shadow: 0 0 0 3px rgba(54, 89, 68, 0.12);
+      margin-top: 17px;
+      font-weight: bold;
+      font-size: 14px;
     }
 
     button {
       width: 100%;
-      border: none;
-      border-radius: 10px;
-      background: var(--green);
+      padding: 14px 16px;
+      margin-top: 16px;
+      border: 0;
+      border-radius: 9px;
+      background: var(--blue);
       color: white;
-      padding: 15px;
-      margin-top: 18px;
-      font: inherit;
-      font-weight: 650;
-      font-size: 15px;
+      font-weight: bold;
       cursor: pointer;
     }
 
-    button:hover {
-      background: var(--green-light);
-    }
+    button:hover { filter: brightness(1.08); }
 
     button.secondary {
-      background: #edf0eb;
-      color: var(--green);
+      background: #e8edf3;
+      color: var(--navy);
+    }
+
+    button.gold {
+      background: var(--gold);
+      color: #332713;
     }
 
     button.danger {
-      background: #f8e9e7;
-      color: var(--red);
-    }
-
-    .notice {
-      border-radius: 10px;
-      background: #f3f5f0;
-      color: #465449;
-      padding: 13px;
-      font-size: 13px;
-      line-height: 1.55;
-      margin-top: 18px;
-    }
-
-    .warning {
-      background: #fff5df;
-      color: #775b24;
-    }
-
-    .error {
-      background: #fae9e7;
-      color: #8e302b;
-    }
-
-    .success {
-      background: #e8f4e9;
-      color: #285b34;
+      background: var(--danger);
     }
 
     .balance-box {
-      background: var(--green);
-      color: white;
-      border-radius: 14px;
-      padding: 22px;
-      margin: 22px 0 16px;
+      background: #f0f5fa;
+      border: 1px solid #dce7f0;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
     }
 
-    .balance-box p {
-      margin: 0 0 8px;
-      color: #e0e8df;
-      font-size: 13px;
+    .balance-label {
+      font-size: 14px;
+      color: var(--muted);
     }
 
     .balance {
-      font-size: 38px;
-      font-weight: 700;
-      letter-spacing: -1px;
-    }
-
-    .account-detail {
-      border-bottom: 1px solid var(--border);
-      padding: 13px 0;
-      font-size: 14px;
-    }
-
-    .account-detail span {
-      color: var(--muted);
-      display: block;
-      font-size: 12px;
-      margin-bottom: 5px;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .small {
-      font-size: 12px;
-      line-height: 1.6;
-      color: var(--muted);
-    }
-
-    .demo-code {
-      font-family: monospace;
-      font-size: 15px;
-      font-weight: 700;
-    }
-
-    .staff-account {
-      padding: 15px 0;
-      border-bottom: 1px solid var(--border);
-      font-size: 14px;
-      line-height: 1.7;
+      font-size: 35px;
+      font-weight: bold;
+      color: var(--navy);
+      margin-top: 8px;
       overflow-wrap: anywhere;
     }
 
-    .staff-account:last-child {
-      border-bottom: none;
+    .notice {
+      padding: 13px;
+      background: #fff7e6;
+      border: 1px solid #f0dfb5;
+      border-radius: 9px;
+      font-size: 14px;
+      line-height: 1.5;
+      margin-top: 16px;
     }
 
-    .staff-account strong {
-      font-size: 15px;
+    .message {
+      display: none;
+      padding: 12px;
+      border-radius: 9px;
+      margin-top: 14px;
+      background: #edf6ee;
+      color: #245b31;
+      font-size: 14px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
     }
 
-    .staff-account button {
-      margin-top: 10px;
+    .message.error {
+      background: #fff0f0;
+      color: #8b2222;
     }
+
+    .staff-link {
+      display: block;
+      width: fit-content;
+      margin: 25px auto;
+      color: var(--muted);
+      background: transparent;
+      font-size: 12px;
+      padding: 8px;
+      text-decoration: underline;
+      font-weight: normal;
+    }
+
+    .staff-link:hover { color: var(--navy); }
+
+    .account-row {
+      padding: 15px 0;
+      border-bottom: 1px solid var(--border);
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+    }
+
+    .account-row:last-child { border-bottom: 0; }
+
+    .account-row strong { color: var(--navy); }
 
     footer {
       text-align: center;
-      padding: 18px 20px 28px;
+      padding: 15px;
       color: var(--muted);
       font-size: 12px;
     }
 
-    footer a {
-      display: inline-block;
-      color: #69766c;
-      font-size: 10px;
-      margin-top: 18px;
-      text-decoration: none;
-      opacity: 0.65;
-    }
+    [hidden] { display: none !important; }
 
-    footer a:hover {
-      opacity: 1;
-      text-decoration: underline;
-    }
-
-    .divider {
-      border: 0;
-      border-top: 1px solid var(--border);
-      margin: 22px 0;
+    @media (max-width: 480px) {
+      .card { padding: 20px; }
+      .brand { font-size: 20px; }
+      .header-inner { align-items: flex-start; }
+      #language { max-width: 100%; }
     }
   </style>
 </head>
 
 <body>
-
 <header>
-  <div class="cross">✝</div>
-  <h1>Church Community</h1>
-  <p>Debt Accounts &amp; Payments</p>
+  <div class="header-inner">
+    <div>
+      <div class="brand" data-i18n="brand">Church Community</div>
+      <div class="subtitle" data-i18n="subtitle">Debt Accounts &amp; Payments</div>
+    </div>
+
+    <select id="language" aria-label="Choose language">
+      <option value="en">🇬🇧 English</option>
+      <option value="sr">🇷🇸 Српски</option>
+      <option value="ru">🇷🇺 Русский</option>
+      <option value="el">🇬🇷 Ελληνικά</option>
+      <option value="ro">🇷🇴 Română</option>
+      <option value="bg">🇧🇬 Български</option>
+    </select>
+  </div>
 </header>
 
 <main>
-
-  <!-- CUSTOMER PHONE LOGIN -->
-  <section id="loginSection" class="card">
-    <h2>Welcome</h2>
-    <p class="description">
-      Sign in with the mobile number registered with the church
-      to view your outstanding balance.
+  <!-- CUSTOMER LOGIN -->
+  <section class="card" id="loginScreen">
+    <h1 data-i18n="welcome">Welcome</h1>
+    <p class="muted" data-i18n="loginIntro">
+      Sign in using the phone number registered with the church.
     </p>
 
-    <label for="phone">Registered mobile number</label>
-    <input
-      id="phone"
-      type="tel"
-      autocomplete="tel"
-      placeholder="+44 7700 900000"
-    >
+    <form id="phoneForm">
+      <label for="phone" data-i18n="phoneLabel">Registered phone number</label>
+      <input id="phone" type="tel" autocomplete="tel"
+        placeholder="+44..." required>
 
-    <button onclick="sendDemoCode()">Send verification code</button>
+      <button type="submit" data-i18n="continue">Continue</button>
+    </form>
 
-    <div id="codeSection" class="hidden">
-      <label for="verificationCode">Verification code</label>
-      <input
-        id="verificationCode"
-        inputmode="numeric"
-        autocomplete="one-time-code"
-        maxlength="6"
-        placeholder="Enter 6-digit code"
-      >
-
-      <button onclick="verifyDemoCode()">Verify and continue</button>
+    <div class="notice">
+      <strong data-i18n="demoTitle">Demo account</strong><br>
+      <span data-i18n="demoPhone">Phone: +447700900000</span><br>
+      <span data-i18n="demoOtp">Demo verification code: 123456</span>
     </div>
 
-    <div id="loginMessage" aria-live="polite"></div>
+    <div id="loginMessage" class="message" role="status"></div>
+  </section>
 
-    <div class="notice warning">
-      <strong>Demo website:</strong> No real SMS is sent.
-      The demonstration code is shown on screen. This must be
-      replaced with a secure SMS verification service before launch.
-    </div>
+  <!-- OTP VERIFICATION -->
+  <section class="card" id="otpScreen" hidden>
+    <h1 data-i18n="verifyTitle">Verify your phone</h1>
+    <p class="muted" data-i18n="verifyIntro">
+      Enter the verification code to continue.
+    </p>
+
+    <form id="otpForm">
+      <label for="otp" data-i18n="otpLabel">Verification code</label>
+      <input id="otp" inputmode="numeric" autocomplete="one-time-code"
+        maxlength="6" placeholder="123456" required>
+
+      <button type="submit" data-i18n="verifyButton">Verify and sign in</button>
+      <button type="button" class="secondary" id="backButton"
+        data-i18n="back">Back</button>
+    </form>
+
+    <div id="otpMessage" class="message" role="status"></div>
   </section>
 
   <!-- CUSTOMER ACCOUNT -->
-  <section id="customerSection" class="card hidden">
-    <h2>Your account</h2>
-    <p class="description">Here is your current church account balance.</p>
-
-    <div class="account-detail">
-      <span>Account holder</span>
-      <strong id="customerName"></strong>
-    </div>
-
-    <div class="account-detail">
-      <span>Registered mobile number</span>
-      <strong id="customerPhone"></strong>
-    </div>
+  <section class="card" id="accountScreen" hidden>
+    <h1 data-i18n="accountTitle">Your account</h1>
+    <p><span data-i18n="nameLabel">Name:</span> <strong id="customerName"></strong></p>
+    <p><span data-i18n="phoneLabel">Registered phone number</span>:
+      <strong id="customerPhone"></strong></p>
 
     <div class="balance-box">
-      <p>Outstanding balance</p>
+      <div class="balance-label" data-i18n="balanceLabel">Outstanding balance</div>
       <div class="balance" id="customerBalance">£0.00</div>
     </div>
 
-    <button onclick="startDemoPayment()">Pay online with myPOS</button>
-
-    <div class="notice warning">
-      <strong>Online payments are not connected yet.</strong>
-      This button is only a demonstration. Real payments require
-      a secure myPOS integration.
-    </div>
-
-    <hr class="divider">
-
-    <div class="notice">
-      <strong>Paying by cash?</strong><br>
-      Cash payments must be made in person at the church.
-      Please speak to a member of staff. Cash payments are not
-      recorded or deducted from your online balance by this demo.
-    </div>
-
-    <button class="secondary" onclick="logout()">Sign out</button>
-  </section>
-
-  <!-- STAFF CODE ENTRY -->
-  <section id="staffLoginSection" class="card hidden">
-    <h2>Staff access</h2>
-    <p class="description">
-      Enter the staff access code to open account management.
+    <h2 data-i18n="paymentTitle">Make a payment</h2>
+    <p class="muted" data-i18n="paymentIntro">
+      Card payments will be available once the church's payment service
+      is connected.
     </p>
 
-    <label for="staffCode">Staff access code</label>
-    <input
-      id="staffCode"
-      type="password"
-      autocomplete="off"
-      placeholder="Enter staff code"
-    >
+    <button type="button" id="payButton" data-i18n="payButton">
+      Pay by card
+    </button>
 
-    <button onclick="checkStaffCode()">Continue</button>
-    <button class="secondary" onclick="backToLogin()">Back</button>
+    <div id="paymentMessage" class="message" role="status"></div>
 
-    <div id="staffLoginMessage" aria-live="polite"></div>
+    <div class="notice" data-i18n="cashNotice">
+      Cash payments must be made in person at the church. This website
+      does not record or clear cash payments.
+    </div>
+
+    <button type="button" class="secondary" id="logoutButton"
+      data-i18n="logout">Sign out</button>
+  </section>
+
+  <!-- STAFF LOGIN -->
+  <section class="card" id="staffLoginScreen" hidden>
+    <h1 data-i18n="staffTitle">Staff access</h1>
+    <p class="muted" data-i18n="staffIntro">
+      Enter the staff access code.
+    </p>
+
+    <form id="staffLoginForm">
+      <label for="staffCode" data-i18n="staffCodeLabel">Staff access code</label>
+      <input id="staffCode" type="password" required>
+
+      <button type="submit" data-i18n="staffSignIn">Sign in as staff</button>
+      <button type="button" class="secondary" id="staffBackButton"
+        data-i18n="back">Back</button>
+    </form>
+
+    <div id="staffLoginMessage" class="message" role="status"></div>
   </section>
 
   <!-- STAFF DASHBOARD -->
-  <section id="staffSection" class="card hidden">
-    <h2>Staff dashboard</h2>
-    <p class="description">
-      Create a member account and enter their total outstanding debt.
+  <section class="card" id="staffScreen" hidden>
+    <h1 data-i18n="staffDashboard">Staff dashboard</h1>
+    <p class="muted" data-i18n="staffDashboardIntro">
+      Create customer accounts and enter their outstanding balances.
     </p>
 
-    <form id="accountForm">
-      <label for="fullName">Customer full name</label>
-      <input
-        id="fullName"
-        type="text"
-        autocomplete="name"
-        required
-        placeholder="Enter full name"
-      >
+    <h2 data-i18n="createAccount">Create customer account</h2>
 
-      <label for="newPhone">Registered mobile number</label>
-      <input
-        id="newPhone"
-        type="tel"
-        autocomplete="tel"
-        required
-        placeholder="+44 7700 900000"
-      >
+    <form id="createAccountForm">
+      <label for="newName" data-i18n="fullName">Full name</label>
+      <input id="newName" required autocomplete="name">
 
-      <label for="amountOwed">Total amount owed (£)</label>
-      <input
-        id="amountOwed"
-        type="number"
-        min="0"
-        max="100000"
-        step="0.01"
-        required
-        placeholder="25.00"
-      >
+      <label for="newPhone" data-i18n="phoneLabel">Registered phone number</label>
+      <input id="newPhone" type="tel" required autocomplete="tel">
 
-      <button type="submit">Create customer account</button>
+      <label for="newBalance" data-i18n="startingBalance">
+        Total amount owed (£)
+      </label>
+      <input id="newBalance" type="number" min="0" step="0.01"
+        required placeholder="0.00">
+
+      <button type="submit" data-i18n="createButton">Create account</button>
     </form>
 
-    <div id="staffMessage" aria-live="polite"></div>
+    <div id="createMessage" class="message" role="status"></div>
 
-    <hr class="divider">
-
-    <h2>Customer accounts</h2>
-    <p class="small">
-      Accounts created here are held only in this browser session.
-      They are not saved to a permanent database.
-    </p>
-
-    <div id="accountList"></div>
-
-    <button class="secondary" onclick="logout()">Sign out of staff</button>
-
-    <div class="notice warning">
-      <strong>Security warning:</strong> This staff area is a
-      demonstration, not a secure administration system.
-      The access code is visible in the website's source code.
-      Do not use real customer records until a secure backend
-      and staff authentication system are connected.
+    <div class="notice" data-i18n="staffCashNotice">
+      Cash payments are handled in person. This demo does not record
+      cash payments or change customer balances after a payment.
     </div>
+
+    <h2 style="margin-top:25px" data-i18n="accountsList">Customer accounts</h2>
+    <div id="accountsList"></div>
+
+    <button type="button" class="secondary" id="staffLogoutButton"
+      data-i18n="logout">Sign out</button>
   </section>
 
+  <button type="button" class="staff-link" id="staffAccessButton"
+    data-i18n="staffAccessLink">Staff access</button>
 </main>
 
-<footer>
-  Church Community Debt Accounts
-  <br>
-  Please contact church staff if you need help with your account.
-  <br>
-  <a href="#" onclick="openStaffLogin(event)">Staff access</a>
+<footer data-i18n="footer">
+  Church Community • Account demo
 </footer>
 
 <script>
   /*
-    DEMO ONLY.
-
-    These accounts and codes are not secure.
-    The data is kept in browser memory and disappears
-    when the page is refreshed or closed.
-
-    Demo customer:
-    Phone: +447700900000
-    Verification code: 123456
-
-    Demo staff code: ChangeMe123
+    DEMO ONLY:
+    - Accounts are stored in memory and disappear on page refresh.
+    - The OTP is not sent by SMS.
+    - The staff code is visible in this public HTML.
+    - No real payment is processed.
   */
 
-  const DEMO_VERIFICATION_CODE = "123456";
-  const DEMO_STAFF_CODE = "ChangeMe123";
+  const STAFF_CODE = "ChangeMe123";
+  const DEMO_OTP = "123456";
 
-  let accounts = [
+  const accounts = [
     {
       name: "Demo Customer",
       phone: "+447700900000",
@@ -470,278 +425,508 @@
     }
   ];
 
-  let pendingPhone = "";
+  let currentPhone = "";
+  let currentCustomer = null;
 
-  const $ = (id) => document.getElementById(id);
+  const translations = {
+    en: {
+      brand:"Church Community",
+      subtitle:"Debt Accounts & Payments",
+      welcome:"Welcome",
+      loginIntro:"Sign in using the phone number registered with the church.",
+      phoneLabel:"Registered phone number",
+      continue:"Continue",
+      demoTitle:"Demo account",
+      demoPhone:"Phone: +447700900000",
+      demoOtp:"Demo verification code: 123456",
+      verifyTitle:"Verify your phone",
+      verifyIntro:"Enter the verification code to continue.",
+      otpLabel:"Verification code",
+      verifyButton:"Verify and sign in",
+      back:"Back",
+      accountTitle:"Your account",
+      nameLabel:"Name:",
+      balanceLabel:"Outstanding balance",
+      paymentTitle:"Make a payment",
+      paymentIntro:"Card payments will be available once the church's payment service is connected.",
+      payButton:"Pay by card",
+      cashNotice:"Cash payments must be made in person at the church. This website does not record or clear cash payments.",
+      logout:"Sign out",
+      staffTitle:"Staff access",
+      staffIntro:"Enter the staff access code.",
+      staffCodeLabel:"Staff access code",
+      staffSignIn:"Sign in as staff",
+      staffDashboard:"Staff dashboard",
+      staffDashboardIntro:"Create customer accounts and enter their outstanding balances.",
+      createAccount:"Create customer account",
+      fullName:"Full name",
+      startingBalance:"Total amount owed (£)",
+      createButton:"Create account",
+      staffCashNotice:"Cash payments are handled in person. This demo does not record cash payments or change customer balances after a payment.",
+      accountsList:"Customer accounts",
+      staffAccessLink:"Staff access",
+      footer:"Church Community • Account demo",
+      invalidPhone:"No account was found for that phone number. Please contact church staff.",
+      otpSent:"Demo mode: enter 123456. No SMS has been sent.",
+      invalidOtp:"Incorrect code. In this demo, use 123456.",
+      invalidStaff:"Incorrect staff access code.",
+      accountCreated:"Customer account created for this session.",
+      duplicatePhone:"An account already exists for that phone number.",
+      paymentUnavailable:"Card payments are not connected yet. No payment has been taken.",
+      noAccounts:"No customer accounts yet.",
+      balance:"Balance:",
+      accountPhone:"Phone:",
+      staffHint:"Demo staff code: ChangeMe123"
+    },
 
-  function normalisePhone(phone) {
-    return phone.replace(/[\s()-]/g, "");
-  }
+    sr: {
+      brand:"Црквена заједница",
+      subtitle:"Дуговни рачуни и плаћања",
+      welcome:"Добро дошли",
+      loginIntro:"Пријавите се бројем телефона регистрованим у цркви.",
+      phoneLabel:"Регистровани број телефона",
+      continue:"Настави",
+      demoTitle:"Пробни налог",
+      demoPhone:"Телефон: +447700900000",
+      demoOtp:"Пробни код: 123456",
+      verifyTitle:"Потврдите телефон",
+      verifyIntro:"Унесите код за потврду.",
+      otpLabel:"Код за потврду",
+      verifyButton:"Потврди и пријави се",
+      back:"Назад",
+      accountTitle:"Ваш налог",
+      nameLabel:"Име:",
+      balanceLabel:"Преостали дуг",
+      paymentTitle:"Извршите уплату",
+      paymentIntro:"Плаћање картицом биће доступно када се повеже црквени систем за плаћање.",
+      payButton:"Плати картицом",
+      cashNotice:"Готовинска плаћања се обављају лично у цркви. Ова веб-страница не евидентира нити измирује готовинска плаћања.",
+      logout:"Одјави се",
+      staffTitle:"Приступ за особље",
+      staffIntro:"Унесите приступни код за особље.",
+      staffCodeLabel:"Приступни код",
+      staffSignIn:"Пријави се као особље",
+      staffDashboard:"Контролна табла особља",
+      staffDashboardIntro:"Креирајте налоге корисника и унесите њихове дугове.",
+      createAccount:"Креирај налог корисника",
+      fullName:"Име и презиме",
+      startingBalance:"Укупан дуг (£)",
+      createButton:"Креирај налог",
+      staffCashNotice:"Готовинска плаћања се обављају лично. Ова пробна верзија не евидентира готовинска плаћања нити мења стање након уплате.",
+      accountsList:"Налози корисника",
+      staffAccessLink:"Приступ за особље",
+      footer:"Црквена заједница • Пробни налог",
+      invalidPhone:"Налог са тим бројем није пронађен. Обратите се црквеном особљу.",
+      otpSent:"Пробни режим: унесите 123456. СМС није послат.",
+      invalidOtp:"Погрешан код. У пробној верзији користите 123456.",
+      invalidStaff:"Погрешан приступни код.",
+      accountCreated:"Налог је креиран за ову сесију.",
+      duplicatePhone:"Налог са тим бројем телефона већ постоји.",
+      paymentUnavailable:"Плаћање картицом још није повезано. Ништа није наплаћено.",
+      noAccounts:"Још нема корисничких налога.",
+      balance:"Дуг:",
+      accountPhone:"Телефон:",
+      staffHint:"Пробни код за особље: ChangeMe123"
+    },
 
-  function formatMoney(amount) {
-    return new Intl.NumberFormat("en-GB", {
-      style: "currency",
-      currency: "GBP"
-    }).format(amount);
-  }
+    ru: {
+      brand:"Церковная община",
+      subtitle:"Долговые счета и платежи",
+      welcome:"Добро пожаловать",
+      loginIntro:"Войдите, используя номер телефона, зарегистрированный в церкви.",
+      phoneLabel:"Зарегистрированный номер телефона",
+      continue:"Продолжить",
+      demoTitle:"Демонстрационный аккаунт",
+      demoPhone:"Телефон: +447700900000",
+      demoOtp:"Демонстрационный код: 123456",
+      verifyTitle:"Подтвердите телефон",
+      verifyIntro:"Введите код подтверждения.",
+      otpLabel:"Код подтверждения",
+      verifyButton:"Подтвердить и войти",
+      back:"Назад",
+      accountTitle:"Ваш аккаунт",
+      nameLabel:"Имя:",
+      balanceLabel:"Остаток задолженности",
+      paymentTitle:"Оплатить",
+      paymentIntro:"Оплата картой станет доступна после подключения платёжной системы церкви.",
+      payButton:"Оплатить картой",
+      cashNotice:"Наличные платежи принимаются лично в церкви. Этот сайт не регистрирует и не списывает наличные платежи.",
+      logout:"Выйти",
+      staffTitle:"Доступ для сотрудников",
+      staffIntro:"Введите код доступа для сотрудников.",
+      staffCodeLabel:"Код доступа",
+      staffSignIn:"Войти как сотрудник",
+      staffDashboard:"Панель сотрудников",
+      staffDashboardIntro:"Создавайте аккаунты клиентов и указывайте их задолженность.",
+      createAccount:"Создать аккаунт клиента",
+      fullName:"Полное имя",
+      startingBalance:"Общая сумма долга (£)",
+      createButton:"Создать аккаунт",
+      staffCashNotice:"Наличные платежи принимаются лично. Эта демоверсия не регистрирует наличные платежи и не меняет баланс после оплаты.",
+      accountsList:"Аккаунты клиентов",
+      staffAccessLink:"Доступ для сотрудников",
+      footer:"Церковная община • Демоверсия",
+      invalidPhone:"Аккаунт с таким номером не найден. Обратитесь к сотрудникам церкви.",
+      otpSent:"Демонстрационный режим: введите 123456. СМС не отправлено.",
+      invalidOtp:"Неверный код. Используйте 123456.",
+      invalidStaff:"Неверный код доступа.",
+      accountCreated:"Аккаунт создан на время этой сессии.",
+      duplicatePhone:"Аккаунт с таким номером уже существует.",
+      paymentUnavailable:"Оплата картой ещё не подключена. Платёж не произведён.",
+      noAccounts:"Аккаунтов клиентов пока нет.",
+      balance:"Долг:",
+      accountPhone:"Телефон:",
+      staffHint:"Демонстрационный код сотрудника: ChangeMe123"
+    },
 
-  function hideAllSections() {
-    [
-      "loginSection",
-      "customerSection",
-      "staffLoginSection",
-      "staffSection"
-    ].forEach(id => $(id).classList.add("hidden"));
-  }
+    el: {
+      brand:"Εκκλησιαστική Κοινότητα",
+      subtitle:"Λογαριασμοί οφειλών και πληρωμές",
+      welcome:"Καλώς ορίσατε",
+      loginIntro:"Συνδεθείτε με τον αριθμό τηλεφώνου που έχει δηλωθεί στην εκκλησία.",
+      phoneLabel:"Καταχωρισμένος αριθμός τηλεφώνου",
+      continue:"Συνέχεια",
+      demoTitle:"Δοκιμαστικός λογαριασμός",
+      demoPhone:"Τηλέφωνο: +447700900000",
+      demoOtp:"Δοκιμαστικός κωδικός: 123456",
+      verifyTitle:"Επαληθεύστε το τηλέφωνό σας",
+      verifyIntro:"Εισαγάγετε τον κωδικό επαλήθευσης.",
+      otpLabel:"Κωδικός επαλήθευσης",
+      verifyButton:"Επαλήθευση και σύνδεση",
+      back:"Πίσω",
+      accountTitle:"Ο λογαριασμός σας",
+      nameLabel:"Όνομα:",
+      balanceLabel:"Υπόλοιπο οφειλής",
+      paymentTitle:"Πραγματοποίηση πληρωμής",
+      paymentIntro:"Οι πληρωμές με κάρτα θα είναι διαθέσιμες όταν συνδεθεί το σύστημα πληρωμών της εκκλησίας.",
+      payButton:"Πληρωμή με κάρτα",
+      cashNotice:"Οι πληρωμές με μετρητά γίνονται αυτοπροσώπως στην εκκλησία. Αυτός ο ιστότοπος δεν καταγράφει ούτε εξοφλεί πληρωμές με μετρητά.",
+      logout:"Αποσύνδεση",
+      staffTitle:"Πρόσβαση προσωπικού",
+      staffIntro:"Εισαγάγετε τον κωδικό πρόσβασης προσωπικού.",
+      staffCodeLabel:"Κωδικός πρόσβασης",
+      staffSignIn:"Σύνδεση προσωπικού",
+      staffDashboard:"Πίνακας προσωπικού",
+      staffDashboardIntro:"Δημιουργήστε λογαριασμούς πελατών και καταχωρίστε τις οφειλές τους.",
+      createAccount:"Δημιουργία λογαριασμού πελάτη",
+      fullName:"Ονοματεπώνυμο",
+      startingBalance:"Συνολικό οφειλόμενο ποσό (£)",
+      createButton:"Δημιουργία λογαριασμού",
+      staffCashNotice:"Οι πληρωμές με μετρητά γίνονται αυτοπροσώπως. Αυτή η δοκιμαστική έκδοση δεν καταγράφει πληρωμές με μετρητά ούτε αλλάζει το υπόλοιπο μετά την πληρωμή.",
+      accountsList:"Λογαριασμοί πελατών",
+      staffAccessLink:"Πρόσβαση προσωπικού",
+      footer:"Εκκλησιαστική Κοινότητα • Δοκιμαστικός λογαριασμός",
+      invalidPhone:"Δεν βρέθηκε λογαριασμός για αυτόν τον αριθμό. Επικοινωνήστε με το προσωπικό της εκκλησίας.",
+      otpSent:"Δοκιμαστική λειτουργία: εισαγάγετε 123456. Δεν στάλθηκε SMS.",
+      invalidOtp:"Λανθασμένος κωδικός. Χρησιμοποιήστε 123456.",
+      invalidStaff:"Λανθασμένος κωδικός πρόσβασης.",
+      accountCreated:"Ο λογαριασμός δημιουργήθηκε για αυτήν τη συνεδρία.",
+      duplicatePhone:"Υπάρχει ήδη λογαριασμός για αυτόν τον αριθμό.",
+      paymentUnavailable:"Οι πληρωμές με κάρτα δεν έχουν συνδεθεί ακόμη. Δεν έγινε χρέωση.",
+      noAccounts:"Δεν υπάρχουν ακόμη λογαριασμοί πελατών.",
+      balance:"Οφειλή:",
+      accountPhone:"Τηλέφωνο:",
+      staffHint:"Δοκιμαστικός κωδικός προσωπικού: ChangeMe123"
+    },
 
-  function showMessage(elementId, message, type = "") {
-    const element = $(elementId);
-    element.className = type ? "notice " + type : "notice";
-    element.textContent = message;
-  }
+    ro: {
+      brand:"Comunitatea Bisericii",
+      subtitle:"Conturi de datorii și plăți",
+      welcome:"Bine ați venit",
+      loginIntro:"Conectați-vă folosind numărul de telefon înregistrat la biserică.",
+      phoneLabel:"Număr de telefon înregistrat",
+      continue:"Continuă",
+      demoTitle:"Cont demonstrativ",
+      demoPhone:"Telefon: +447700900000",
+      demoOtp:"Cod demonstrativ: 123456",
+      verifyTitle:"Verificați telefonul",
+      verifyIntro:"Introduceți codul de verificare.",
+      otpLabel:"Cod de verificare",
+      verifyButton:"Verifică și conectează-te",
+      back:"Înapoi",
+      accountTitle:"Contul dumneavoastră",
+      nameLabel:"Nume:",
+      balanceLabel:"Sold restant",
+      paymentTitle:"Efectuați o plată",
+      paymentIntro:"Plățile cu cardul vor fi disponibile după conectarea sistemului de plată al bisericii.",
+      payButton:"Plătește cu cardul",
+      cashNotice:"Plățile în numerar se fac personal la biserică. Acest site nu înregistrează și nu stinge plățile în numerar.",
+      logout:"Deconectare",
+      staffTitle:"Acces personal",
+      staffIntro:"Introduceți codul de acces al personalului.",
+      staffCodeLabel:"Cod de acces",
+      staffSignIn:"Conectare ca personal",
+      staffDashboard:"Panou personal",
+      staffDashboardIntro:"Creați conturi pentru clienți și introduceți soldurile datorate.",
+      createAccount:"Creați un cont de client",
+      fullName:"Nume complet",
+      startingBalance:"Suma totală datorată (£)",
+      createButton:"Creează cont",
+      staffCashNotice:"Plățile în numerar se fac personal. Această versiune demonstrativă nu înregistrează plățile în numerar și nu modifică soldurile după plată.",
+      accountsList:"Conturi clienți",
+      staffAccessLink:"Acces personal",
+      footer:"Comunitatea Bisericii • Cont demonstrativ",
+      invalidPhone:"Nu a fost găsit un cont pentru acest număr. Contactați personalul bisericii.",
+      otpSent:"Mod demonstrativ: introduceți 123456. Nu a fost trimis niciun SMS.",
+      invalidOtp:"Cod incorect. Folosiți 123456.",
+      invalidStaff:"Cod de acces incorect.",
+      accountCreated:"Contul a fost creat pentru această sesiune.",
+      duplicatePhone:"Există deja un cont pentru acest număr de telefon.",
+      paymentUnavailable:"Plățile cu cardul nu sunt încă conectate. Nu s-a efectuat nicio plată.",
+      noAccounts:"Nu există încă conturi de clienți.",
+      balance:"Sold:",
+      accountPhone:"Telefon:",
+      staffHint:"Cod demonstrativ pentru personal: ChangeMe123"
+    },
 
-  function sendDemoCode() {
-    const phone = normalisePhone($("phone").value);
-
-    if (!phone || phone.length < 7) {
-      showMessage(
-        "loginMessage",
-        "Please enter a valid registered mobile number.",
-        "error"
-      );
-      return;
+    bg: {
+      brand:"Църковна общност",
+      subtitle:"Сметки за задължения и плащания",
+      welcome:"Добре дошли",
+      loginIntro:"Влезте с телефонния номер, регистриран в църквата.",
+      phoneLabel:"Регистриран телефонен номер",
+      continue:"Продължи",
+      demoTitle:"Демо акаунт",
+      demoPhone:"Телефон: +447700900000",
+      demoOtp:"Демо код: 123456",
+      verifyTitle:"Потвърдете телефона си",
+      verifyIntro:"Въведете кода за потвърждение.",
+      otpLabel:"Код за потвърждение",
+      verifyButton:"Потвърди и влез",
+      back:"Назад",
+      accountTitle:"Вашият акаунт",
+      nameLabel:"Име:",
+      balanceLabel:"Оставащо задължение",
+      paymentTitle:"Извършване на плащане",
+      paymentIntro:"Плащанията с карта ще бъдат налични след свързване на платежната система на църквата.",
+      payButton:"Плати с карта",
+      cashNotice:"Плащанията в брой се извършват лично в църквата. Този сайт не регистрира и не погасява плащания в брой.",
+      logout:"Изход",
+      staffTitle:"Достъп за персонала",
+      staffIntro:"Въведете кода за достъп на персонала.",
+      staffCodeLabel:"Код за достъп",
+      staffSignIn:"Вход като персонал",
+      staffDashboard:"Панел за персонала",
+      staffDashboardIntro:"Създавайте клиентски акаунти и въвеждайте дължимите суми.",
+      createAccount:"Създаване на клиентски акаунт",
+      fullName:"Пълно име",
+      startingBalance:"Обща дължима сума (£)",
+      createButton:"Създай акаунт",
+      staffCashNotice:"Плащанията в брой се извършват лично. Тази демо версия не регистрира плащания в брой и не променя балансите след плащане.",
+      accountsList:"Клиентски акаунти",
+      staffAccessLink:"Достъп за персонала",
+      footer:"Църковна общност • Демо акаунт",
+      invalidPhone:"Не е намерен акаунт за този номер. Свържете се с персонала на църквата.",
+      otpSent:"Демо режим: въведете 123456. Не е изпратен SMS.",
+      invalidOtp:"Неправилен код. Използвайте 123456.",
+      invalidStaff:"Неправилен код за достъп.",
+      accountCreated:"Акаунтът е създаден за тази сесия.",
+      duplicatePhone:"Вече съществува акаунт за този телефонен номер.",
+      paymentUnavailable:"Плащанията с карта все още не са свързани. Не е извършено плащане.",
+      noAccounts:"Все още няма клиентски акаунти.",
+      balance:"Задължение:",
+      accountPhone:"Телефон:",
+      staffHint:"Демо код за персонала: ChangeMe123"
     }
+  };
 
-    const account = accounts.find(
-      item => normalisePhone(item.phone) === phone
-    );
+  let language = "en";
 
-    if (!account) {
-      showMessage(
-        "loginMessage",
-        "This number is not registered. Please contact church staff.",
-        "error"
-      );
-      return;
-    }
-
-    pendingPhone = phone;
-    $("codeSection").classList.remove("hidden");
-
-    showMessage(
-      "loginMessage",
-      "Demo mode only: your demonstration verification code is " +
-      DEMO_VERIFICATION_CODE +
-      ". No SMS has been sent.",
-      "warning"
-    );
+  function t(key) {
+    return translations[language][key] || translations.en[key] || key;
   }
 
-  function verifyDemoCode() {
-    const code = $("verificationCode").value.trim();
+  function setLanguage(value) {
+    language = translations[value] ? value : "en";
+    document.documentElement.lang = language;
 
-    if (code !== DEMO_VERIFICATION_CODE) {
-      showMessage(
-        "loginMessage",
-        "Incorrect verification code. Please try again.",
-        "error"
-      );
-      return;
-    }
-
-    const account = accounts.find(
-      item => normalisePhone(item.phone) === pendingPhone
-    );
-
-    if (!account) {
-      showMessage(
-        "loginMessage",
-        "Account not found. Please contact church staff.",
-        "error"
-      );
-      return;
-    }
-
-    $("customerName").textContent = account.name;
-    $("customerPhone").textContent = account.phone;
-    $("customerBalance").textContent = formatMoney(account.balance);
-
-    hideAllSections();
-    $("customerSection").classList.remove("hidden");
-  }
-
-  function startDemoPayment() {
-    alert(
-      "myPOS is not connected yet.\n\n" +
-      "To accept real payments, the website needs a secure server " +
-      "that creates the payment request and verifies the result " +
-      "with myPOS."
-    );
-  }
-
-  function openStaffLogin(event) {
-    event.preventDefault();
-    hideAllSections();
-    $("staffCode").value = "";
-    $("staffLoginMessage").textContent = "";
-    $("staffLoginSection").classList.remove("hidden");
-  }
-
-  function checkStaffCode() {
-    if ($("staffCode").value !== DEMO_STAFF_CODE) {
-      showMessage(
-        "staffLoginMessage",
-        "Incorrect staff code.",
-        "error"
-      );
-      return;
-    }
-
-    hideAllSections();
-    $("staffSection").classList.remove("hidden");
-    renderAccounts();
-  }
-
-  $("accountForm").addEventListener("submit", function(event) {
-    event.preventDefault();
-
-    const name = $("fullName").value.trim();
-    const phone = normalisePhone($("newPhone").value);
-    const balance = Number($("amountOwed").value);
-
-    if (!name || !phone || phone.length < 7) {
-      showMessage(
-        "staffMessage",
-        "Please enter a full name and valid mobile number.",
-        "error"
-      );
-      return;
-    }
-
-    if (!Number.isFinite(balance) || balance < 0 || balance > 100000) {
-      showMessage(
-        "staffMessage",
-        "Please enter an amount between £0 and £100,000.",
-        "error"
-      );
-      return;
-    }
-
-    const duplicate = accounts.some(
-      item => normalisePhone(item.phone) === phone
-    );
-
-    if (duplicate) {
-      showMessage(
-        "staffMessage",
-        "An account already exists for this mobile number.",
-        "error"
-      );
-      return;
-    }
-
-    accounts.push({
-      name: name,
-      phone: phone,
-      balance: Math.round(balance * 100) / 100
+    document.querySelectorAll("[data-i18n]").forEach(element => {
+      const key = element.getAttribute("data-i18n");
+      element.textContent = t(key);
     });
 
-    $("accountForm").reset();
-
-    showMessage(
-      "staffMessage",
-      "Demo account created successfully. It will disappear when this page is refreshed.",
-      "success"
-    );
-
     renderAccounts();
+  }
+
+  document.getElementById("language").addEventListener("change", event => {
+    setLanguage(event.target.value);
   });
 
-  function renderAccounts() {
-    const list = $("accountList");
-    list.innerHTML = "";
-
-    if (accounts.length === 0) {
-      list.textContent = "No customer accounts have been created.";
-      return;
-    }
-
-    accounts.forEach((account, index) => {
-      const item = document.createElement("div");
-      item.className = "staff-account";
-
-      const title = document.createElement("strong");
-      title.textContent = account.name;
-
-      const details = document.createElement("div");
-      details.textContent =
-        account.phone + " · Balance: " + formatMoney(account.balance);
-
-      const editLabel = document.createElement("label");
-      editLabel.textContent = "Update balance (£)";
-      editLabel.htmlFor = "balance-" + index;
-
-      const balanceInput = document.createElement("input");
-      balanceInput.id = "balance-" + index;
-      balanceInput.type = "number";
-      balanceInput.min = "0";
-      balanceInput.max = "100000";
-      balanceInput.step = "0.01";
-      balanceInput.value = account.balance.toFixed(2);
-
-      const updateButton = document.createElement("button");
-      updateButton.type = "button";
-      updateButton.textContent = "Update balance";
-
-      updateButton.addEventListener("click", function() {
-        const newBalance = Number(balanceInput.value);
-
-        if (
-          !Number.isFinite(newBalance) ||
-          newBalance < 0 ||
-          newBalance > 100000
-        ) {
-          alert("Please enter a valid balance.");
-          return;
-        }
-
-        accounts[index].balance = Math.round(newBalance * 100) / 100;
-        renderAccounts();
-
-        showMessage(
-          "staffMessage",
-          "Balance updated for this demo session.",
-          "success"
-        );
-      });
-
-      item.appendChild(title);
-      item.appendChild(details);
-      item.appendChild(editLabel);
-      item.appendChild(balanceInput);
-      item.appendChild(updateButton);
-      list.appendChild(item);
+  function showScreen(id) {
+    [
+      "loginScreen",
+      "otpScreen",
+      "accountScreen",
+      "staffLoginScreen",
+      "staffScreen"
+    ].forEach(screenId => {
+      document.getElementById(screenId).hidden = screenId !== id;
     });
   }
 
-  function logout() {
-    pendingPhone = "";
-    $("phone").value = "";
-    $("verificationCode").value = "";
-    $("staffCode").value = "";
-    $("codeSection").classList.add("hidden");
-    $("loginMessage").textContent = "";
-    $("staffLoginMessage").textContent = "";
-
-    hideAllSections();
-    $("loginSection").classList.remove("hidden");
+  function showMessage(id, message, error = false) {
+    const element = document.getElementById(id);
+    element.textContent = message;
+    element.className = error ? "message error" : "message";
+    element.style.display = "block";
   }
 
-  function backToLogin() {
-    hideAllSections();
-    $("loginSection").classList.remove("hidden");
+  function hideMessage(id) {
+    const element = document.getElementById(id);
+    element.style.display = "none";
+    element.textContent = "";
   }
+
+  function normalisePhone(phone) {
+    return phone.replace(/[\s\-()]/g, "");
+  }
+
+  document.getElementById("phoneForm").addEventListener("submit", event => {
+    event.preventDefault();
+    hideMessage("loginMessage");
+
+    currentPhone = normalisePhone(document.getElementById("phone").value);
+
+    const account = accounts.find(
+      item => normalisePhone(item.phone) === currentPhone
+    );
+
+    if (!account) {
+      showMessage("loginMessage", t("invalidPhone"), true);
+      return;
+    }
+
+    showMessage("loginMessage", t("otpSent"));
+    document.getElementById("otp").value = "";
+    showScreen("otpScreen");
+  });
+
+  document.getElementById("otpForm").addEventListener("submit", event => {
+    event.preventDefault();
+
+    if (document.getElementById("otp").value.trim() !== DEMO_OTP) {
+      showMessage("otpMessage", t("invalidOtp"), true);
+      return;
+    }
+
+    currentCustomer = accounts.find(
+      item => normalisePhone(item.phone) === currentPhone
+    );
+
+    if (!currentCustomer) {
+      showScreen("loginScreen");
+      return;
+    }
+
+    document.getElementById("customerName").textContent = currentCustomer.name;
+    document.getElementById("customerPhone").textContent = currentCustomer.phone;
+    document.getElementById("customerBalance").textContent =
+      formatMoney(currentCustomer.balance);
+
+    hideMessage("paymentMessage");
+    showScreen("accountScreen");
+  });
+
+  document.getElementById("backButton").addEventListener("click", () => {
+    hideMessage("loginMessage");
+    showScreen("loginScreen");
+  });
+
+  document.getElementById("logoutButton").addEventListener("click", () => {
+    currentCustomer = null;
+    currentPhone = "";
+    document.getElementById("phone").value = "";
+    document.getElementById("otp").value = "";
+    showScreen("loginScreen");
+  });
+
+  document.getElementById("payButton").addEventListener("click", () => {
+    showMessage("paymentMessage", t("paymentUnavailable"), true);
+  });
+
+  document.getElementById("staffAccessButton").addEventListener("click", () => {
+    hideMessage("staffLoginMessage");
+    document.getElementById("staffCode").value = "";
+    showScreen("staffLoginScreen");
+  });
+
+  document.getElementById("staffBackButton").addEventListener("click", () => {
+    showScreen("loginScreen");
+  });
+
+  document.getElementById("staffLoginForm").addEventListener("submit", event => {
+    event.preventDefault();
+
+    if (document.getElementById("staffCode").value !== STAFF_CODE) {
+      showMessage("staffLoginMessage", t("invalidStaff"), true);
+      return;
+    }
+
+    renderAccounts();
+    showScreen("staffScreen");
+  });
+
+  document.getElementById("createAccountForm").addEventListener("submit", event => {
+    event.preventDefault();
+    hideMessage("createMessage");
+
+    const name = document.getElementById("newName").value.trim();
+    const phone = normalisePhone(document.getElementById("newPhone").value);
+    const balance = Number(document.getElementById("newBalance").value);
+
+    if (!name || !phone || !Number.isFinite(balance) || balance < 0) {
+      return;
+    }
+
+    if (accounts.some(item => normalisePhone(item.phone) === phone)) {
+      showMessage("createMessage", t("duplicatePhone"), true);
+      return;
+    }
+
+    accounts.push({ name, phone, balance });
+    document.getElementById("createAccountForm").reset();
+
+    renderAccounts();
+    showMessage("createMessage", t("accountCreated"));
+  });
+
+  function formatMoney(amount) {
+    return new Intl.NumberFormat(
+      language === "en" ? "en-GB" : language,
+      { style: "currency", currency: "GBP" }
+    ).format(amount);
+  }
+
+  function renderAccounts() {
+    const list = document.getElementById("accountsList");
+    if (!list) return;
+
+    list.replaceChildren();
+
+    if (accounts.length === 0) {
+      list.textContent = t("noAccounts");
+      return;
+    }
+
+    accounts.forEach(account => {
+      const row = document.createElement("div");
+      row.className = "account-row";
+
+      const name = document.createElement("strong");
+      name.textContent = account.name;
+
+      const phone = document.createElement("div");
+      phone.textContent = t("accountPhone") + " " + account.phone;
+
+      const balance = document.createElement("div");
+      balance.textContent = t("balance") + " " + formatMoney(account.balance);
+
+      row.append(name, phone, balance);
+      list.appendChild(row);
+    });
+  }
+
+  setLanguage("en");
 </script>
-
 </body>
 </html>
