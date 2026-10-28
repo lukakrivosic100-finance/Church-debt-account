@@ -721,6 +721,8 @@
 
     // Staff sessions are held in memory only, never in browser storage.
     const STAFF_API_URL = "https://acyjdlrsvtgqqazzxzys.supabase.co/functions/v1/staff-pin";
+    // Supabase publishable keys are designed to be public; never use a secret or service-role key here.
+    const STAFF_PUBLISHABLE_KEY = "sb_publishable_RtCgif0EJYw_LgjgLSEPzQ_xasQeIf4";
     let staffToken = "";
     let selectedStaffCustomer = null;
     let checkedStaffMobile = "";
@@ -732,7 +734,7 @@
     }
 
     async function staffApi(action, payload = {}, requireSession = true) {
-      const headers = { "Content-Type": "application/json" };
+      const headers = { "Content-Type": "application/json", "apikey": STAFF_PUBLISHABLE_KEY };
       if (requireSession) {
         if (!staffToken) throw new Error("Staff session expired. Please sign in again.");
         headers["x-staff-session"] = staffToken;
@@ -756,7 +758,7 @@
           document.getElementById("staffWorkspace").classList.add("hidden");
           document.getElementById("staffLoginForm").classList.remove("hidden");
         }
-        throw new Error(data.error || "Staff request failed. Please try again.");
+        throw new Error(data.error || ("Staff request failed (HTTP " + response.status + "). Please try again."));
       }
       return data;
     }
@@ -953,7 +955,7 @@
         try {
           await fetch(STAFF_API_URL, {
             method: "POST",
-            headers: { "Content-Type": "application/json", "x-staff-session": token },
+            headers: { "Content-Type": "application/json", "apikey": STAFF_PUBLISHABLE_KEY, "x-staff-session": token },
             body: JSON.stringify({ action: "logout" })
           });
           staffStatus("Staff signed out.", "success");
