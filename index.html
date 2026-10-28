@@ -376,12 +376,30 @@
         <h2>Staff access</h2>
         <p class="muted">Authorised church staff only. Enter your four-digit staff PIN.</p>
         <form id="staffLoginForm">
+          <label for="staffUsername">Staff username</label>
+          <input id="staffUsername" type="text" autocomplete="username" value="headadmin" maxlength="32" autocapitalize="none" spellcheck="false" required>
           <label for="staffPin">Staff PIN</label>
           <input id="staffPin" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="off" required>
           <button class="button" id="staffLoginButton" type="submit">Staff sign in</button>
         </form>
         <p id="staffStatus" class="status" role="status" aria-live="polite"></p>
         <div id="staffWorkspace" class="hidden">
+          <p id="signedInStaffLabel" class="muted"></p>
+          <div id="staffAdminPanel" class="card hidden">
+            <h3>Head Admin — Manage staff</h3>
+            <p class="muted">Create staff accounts with their own usernames and four-digit PINs.</p>
+            <form id="staffCreateForm">
+              <label for="staffNewName">Staff name</label>
+              <input id="staffNewName" type="text" maxlength="80" required>
+              <label for="staffNewUsername">Username</label>
+              <input id="staffNewUsername" type="text" minlength="3" maxlength="32" pattern="[a-z][a-z0-9._-]{2,31}" autocapitalize="none" spellcheck="false" required>
+              <label for="staffNewPin">New staff PIN (four digits)</label>
+              <input id="staffNewPin" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="new-password" required>
+              <button class="button" id="staffCreateButton" type="submit">Register staff member</button>
+            </form>
+            <h3>Registered staff</h3>
+            <div id="staffAccountList"><p class="muted">Loading staff…</p></div>
+          </div>
           <h3>Find or register a customer</h3>
           <form id="staffFindForm">
             <label for="staffMobile">Customer UK mobile number</label>
@@ -725,6 +743,7 @@
     const STAFF_PUBLISHABLE_KEY = "sb_publishable_RtCgif0EJYw_LgjgLSEPzQ_xasQeIf4";
     let staffToken = "";
     let selectedStaffCustomer = null;
+    let signedInStaff = null;
     let checkedStaffMobile = "";
 
     function staffStatus(message, type = "") {
@@ -844,9 +863,16 @@
       button.disabled = true;
       staffStatus("Signing in…");
       try {
-        const data = await staffApi("login", { pin }, false);
+        const username = document.getElementById("staffUsername").value.trim().toLowerCase();
+        const data = await staffApi("login", { username, pin }, false);
         if (!data.sessionToken) throw new Error("Staff server did not create a session.");
         staffToken = data.sessionToken;
+        signedInStaff = data.staff;
+        document.getElementById("signedInStaffLabel").textContent =
+          "Signed in: " + (signedInStaff?.display_name || username) +
+          " (" + (signedInStaff?.role === "admin" ? "Head Admin" : "Staff") + ")";
+        document.getElementById("staffAdminPanel").classList.toggle("hidden", signedInStaff?.role !== "admin");
+        if (signedInStaff?.role === "admin") await loadStaffAccounts();
         document.getElementById("staffPin").value = "";
         document.getElementById("staffLoginForm").classList.add("hidden");
         document.getElementById("staffWorkspace").classList.remove("hidden");
@@ -943,9 +969,104 @@
       }
     });
 
+    async function loadStaffAccounts() {
+      const list = document.getElementById("staffAccountList");
+      list.replaceChildren();
+      try {
+        const data = await staffApi("list_staff");
+        const accounts = Array.isArray(data.staff) ? data.staff : [];
+        for (const person of accounts) {
+          const item = document.createElement("div");
+          item.className = "history-item";
+          const info = document.createElement("div");
+          const title = document.createElement("strong");
+          title.textContent = person.display_name + " (@" + person.username + ")";
+          const status = document.createElement("div");
+          status.className = "muted small";
+          status.textContent = person.role === "admin" ? "Head Admin" : (person.is_active ? "Active staff" : "Disabled staff");
+          info.append(title, status);
+          item.appendChild(info);
+          if (person.role !== "admin") {
+            const buttons = document.createElement("div");
+            const toggle = document.createElement("button");
+            toggle.type = "button";
+            toggle.className = "button button-secondary";
+            toggle.textContent = person.is_active ? "Disable" : "Enable";
+            toggle.addEventListener("click", async () => {
+              if (!confirm((person.is_active ? "Disable " : "Enable ") + person.display_name + "?")) return;
+              toggle.disabled = true;
+              try {
+                await staffApi("set_staff_active", { staffId: person.id, isActive: !person.is_active });
+                staffStatus("Staff account updated.", "success");
+                await loadStaffAccounts();
+              } catch (err) {
+                staffStatus(err.message || "Could not update staff.", "error");
+                toggle.disabled = false;
+              }
+            });
+            const reset = document.createElement("button");
+            reset.type = "button";
+            reset.className = "button button-secondary";
+            reset.textContent = "Reset PIN";
+            reset.addEventListener("click", async () => {
+              const pin = prompt("Enter a new four-digit PIN for " + person.display_name + ". Do not share the PIN.");
+              if (pin === null) return;
+              if (!/^[0-9]{4}$/.test(pin)) {
+                staffStatus("PIN must contain exactly four digits.", "error");
+                return;
+              }
+              if (!confirm("Reset PIN for " + person.display_name + "? Their existing sessions will end.")) return;
+              reset.disabled = true;
+              try {
+                await staffApi("reset_staff_pin", { staffId: person.id, pin });
+                staffStatus("Staff PIN updated.", "success");
+              } catch (err) {
+                staffStatus(err.message || "Unable to reset PIN.", "error");
+              } finally {
+                reset.disabled = false;
+              }
+            });
+            buttons.append(toggle, reset);
+            item.appendChild(buttons);
+          }
+          list.appendChild(item);
+        }
+      } catch (error) {
+        staffStatus(error.message || "Unable to load staff accounts.", "error");
+      }
+    }
+
+    document.getElementById("staffCreateForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const displayName = document.getElementById("staffNewName").value.trim();
+      const username = document.getElementById("staffNewUsername").value.trim().toLowerCase();
+      const pin = document.getElementById("staffNewPin").value.trim();
+      if (!/^[a-z][a-z0-9._-]{2,31}$/.test(username) || !/^[0-9]{4}$/.test(pin)) {
+        staffStatus("Check the username and four-digit PIN.", "error");
+        return;
+      }
+      if (!confirm("Create an account for " + displayName + " (@" + username + ")?")) return;
+      const button = document.getElementById("staffCreateButton");
+      button.disabled = true;
+      try {
+        await staffApi("create_staff", { username, displayName, pin });
+        document.getElementById("staffNewName").value = "";
+        document.getElementById("staffNewUsername").value = "";
+        document.getElementById("staffNewPin").value = "";
+        staffStatus("Staff account registered.", "success");
+        await loadStaffAccounts();
+      } catch (error) {
+        staffStatus(error.message || "Unable to register staff.", "error");
+      } finally {
+        button.disabled = false;
+      }
+    });
+
     async function staffLogout() {
       const token = staffToken;
       staffToken = "";
+      signedInStaff = null;
+      document.getElementById("staffAdminPanel").classList.add("hidden");
       clearSelectedCustomer();
       checkedStaffMobile = "";
       document.getElementById("staffWorkspace").classList.add("hidden");
