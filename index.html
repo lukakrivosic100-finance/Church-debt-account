@@ -374,13 +374,48 @@
     <section id="staffSection" class="hidden">
       <div class="card">
         <h2>Staff access</h2>
-        <p class="muted">
-          Staff access must be authenticated and authorised by the server before account records can be changed.
-        </p>
-        <p id="staffStatus" class="status" role="status"></p>
-        <button class="button button-secondary" id="staffBackButton">
-          Back to customer login
-        </button>
+        <p class="muted">Authorised church staff only. Enter your four-digit staff PIN.</p>
+        <form id="staffLoginForm">
+          <label for="staffPin">Staff PIN</label>
+          <input id="staffPin" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="off" required>
+          <button class="button" id="staffLoginButton" type="submit">Staff sign in</button>
+        </form>
+        <p id="staffStatus" class="status" role="status" aria-live="polite"></p>
+        <div id="staffWorkspace" class="hidden">
+          <h3>Find or register a customer</h3>
+          <form id="staffFindForm">
+            <label for="staffMobile">Customer UK mobile number</label>
+            <input id="staffMobile" type="tel" placeholder="07123456789" required>
+            <button class="button" type="submit">Find customer</button>
+          </form>
+          <div id="staffRegister" class="hidden">
+            <p class="muted">No customer found for that number.</p>
+            <button class="button button-secondary" id="staffRegisterButton" type="button">Register this customer</button>
+          </div>
+          <div id="staffCustomer" class="hidden">
+            <h3>Customer account</h3>
+            <p id="staffCustomerLabel"></p>
+            <p><strong>Outstanding balance: <span id="staffBalance">Loading…</span></strong></p>
+            <h3>Record an account transaction</h3>
+            <form id="staffTransactionForm">
+              <label for="staffTransactionType">Transaction</label>
+              <select id="staffTransactionType" required>
+                <option value="cash_payment">Cash payment received</option>
+                <option value="debt_added">Add debt</option>
+                <option value="debt_reduced">Reduce debt (adjustment)</option>
+              </select>
+              <label for="staffAmount">Amount in pounds (£), maximum £499</label>
+              <input id="staffAmount" type="number" min="0.01" max="499" step="0.01" required>
+              <label for="staffNote">Note (optional)</label>
+              <input id="staffNote" type="text" maxlength="500">
+              <button class="button" id="staffRecordButton" type="submit">Record transaction</button>
+            </form>
+            <h3>Recent transactions</h3>
+            <div id="staffHistory"><p class="muted">No records loaded.</p></div>
+          </div>
+          <button class="button button-secondary" type="button" id="staffLogoutButton">Staff sign out</button>
+        </div>
+        <button class="button button-secondary" id="staffBackButton" type="button">Back to customer login</button>
       </div>
     </section>
   </main>
@@ -684,28 +719,257 @@
         }
       });
 
-    document
-      .getElementById("staffLink")
-      .addEventListener("click", event => {
-        event.preventDefault();
+    // Staff sessions are held in memory only, never in browser storage.
+    const STAFF_API_URL = "https://acyjdlrsvtgqqazzxzys.supabase.co/functions/v1/staff-pin";
+    let staffToken = "";
+    let selectedStaffCustomer = null;
+    let checkedStaffMobile = "";
 
-        loginSection.classList.add("hidden");
-        accountSection.classList.add("hidden");
-        staffSection.classList.remove("hidden");
+    function staffStatus(message, type = "") {
+      const el = document.getElementById("staffStatus");
+      el.textContent = message;
+      el.className = "status " + type;
+    }
 
-        document.getElementById("staffStatus").textContent =
-          "Staff tools are not connected to this customer page. Use the separate authorised staff sign-in.";
-      });
+    async function staffApi(action, payload = {}, requireSession = true) {
+      const headers = { "Content-Type": "application/json" };
+      if (requireSession) {
+        if (!staffToken) throw new Error("Staff session expired. Please sign in again.");
+        headers["x-staff-session"] = staffToken;
+      }
+      let response;
+      try {
+        response = await fetch(STAFF_API_URL, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ action, ...payload })
+        });
+      } catch {
+        throw new Error("Cannot reach the staff server. Check your internet connection.");
+      }
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || data.error) {
+        if (response.status === 401 && requireSession &&
+            /session/i.test(data.error || "")) {
+          staffToken = "";
+          selectedStaffCustomer = null;
+          document.getElementById("staffWorkspace").classList.add("hidden");
+          document.getElementById("staffLoginForm").classList.remove("hidden");
+        }
+        throw new Error(data.error || "Staff request failed. Please try again.");
+      }
+      return data;
+    }
 
-    document
-      .getElementById("staffBackButton")
-      .addEventListener("click", () => {
-        staffSection.classList.add("hidden");
-        loginSection.classList.remove("hidden");
-        phoneForm.classList.remove("hidden");
-        otpForm.classList.add("hidden");
-        setStatus("");
-      });
+    function clearSelectedCustomer() {
+      selectedStaffCustomer = null;
+      document.getElementById("staffCustomer").classList.add("hidden");
+      document.getElementById("staffRegister").classList.add("hidden");
+    }
+
+    async function loadStaffCustomer() {
+      if (!selectedStaffCustomer) return;
+      const customerId = selectedStaffCustomer.id;
+      const [balanceResult, historyResult] = await Promise.all([
+        staffApi("customer_balance", { customerId }),
+        staffApi("customer_history", { customerId })
+      ]);
+      // Ignore a delayed response if staff have since selected another customer.
+      if (!selectedStaffCustomer || selectedStaffCustomer.id !== customerId) return;
+      document.getElementById("staffBalance").textContent =
+        formatGBPFromPence(balanceResult.balance?.balance_pence ?? 0);
+      const container = document.getElementById("staffHistory");
+      container.replaceChildren();
+      const records = Array.isArray(historyResult.history) ? historyResult.history : [];
+      if (!records.length) {
+        const empty = document.createElement("p");
+        empty.className = "muted";
+        empty.textContent = "No transactions recorded yet.";
+        container.appendChild(empty);
+      }
+      for (const entry of records) {
+        const item = document.createElement("div");
+        item.className = "history-item";
+        const details = document.createElement("div");
+        const heading = document.createElement("strong");
+        heading.textContent = (entry.transaction_type || "Transaction").replace(/_/g, " ");
+        details.appendChild(heading);
+        if (entry.note) {
+          const note = document.createElement("div");
+          note.className = "muted small";
+          note.textContent = entry.note;
+          details.appendChild(note);
+        }
+        if (entry.created_at) {
+          const date = document.createElement("div");
+          date.className = "muted small";
+          const dt = new Date(entry.created_at);
+          date.textContent = Number.isNaN(dt.getTime()) ? "" : dt.toLocaleString("en-GB");
+          details.appendChild(date);
+        }
+        const amount = document.createElement("div");
+        amount.className = "history-amount";
+        amount.textContent = formatGBPFromPence(entry.amount_pence);
+        item.append(details, amount);
+        container.appendChild(item);
+      }
+    }
+
+    function selectStaffCustomer(customer) {
+      clearSelectedCustomer();
+      selectedStaffCustomer = customer;
+      document.getElementById("staffCustomerLabel").textContent = customer.mobile_number;
+      document.getElementById("staffCustomer").classList.remove("hidden");
+    }
+
+    document.getElementById("staffLink").addEventListener("click", event => {
+      event.preventDefault();
+      loginSection.classList.add("hidden");
+      accountSection.classList.add("hidden");
+      staffSection.classList.remove("hidden");
+      staffStatus("");
+      if (!staffToken) document.getElementById("staffPin").focus();
+    });
+
+    document.getElementById("staffLoginForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const pin = document.getElementById("staffPin").value.trim();
+      if (!/^[0-9]{4}$/.test(pin)) {
+        staffStatus("Enter your four-digit staff PIN.", "error");
+        return;
+      }
+      const button = document.getElementById("staffLoginButton");
+      button.disabled = true;
+      staffStatus("Signing in…");
+      try {
+        const data = await staffApi("login", { pin }, false);
+        if (!data.sessionToken) throw new Error("Staff server did not create a session.");
+        staffToken = data.sessionToken;
+        document.getElementById("staffPin").value = "";
+        document.getElementById("staffLoginForm").classList.add("hidden");
+        document.getElementById("staffWorkspace").classList.remove("hidden");
+        staffStatus("Staff signed in.", "success");
+      } catch (error) {
+        staffStatus(error.message || "Unable to sign in.", "error");
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    document.getElementById("staffFindForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const mobile = normaliseUKMobile(document.getElementById("staffMobile").value);
+      clearSelectedCustomer();
+      if (!mobile) {
+        staffStatus("Enter a valid UK mobile number.", "error");
+        return;
+      }
+      checkedStaffMobile = "";
+      staffStatus("Searching customer…");
+      try {
+        const data = await staffApi("find_customer", { mobile });
+        checkedStaffMobile = mobile;
+        if (data.found && data.customer) {
+          selectStaffCustomer(data.customer);
+          await loadStaffCustomer();
+          staffStatus("Customer found.", "success");
+        } else {
+          document.getElementById("staffRegister").classList.remove("hidden");
+          staffStatus("No registered customer found.");
+        }
+      } catch (error) {
+        staffStatus(error.message || "Customer search failed.", "error");
+      }
+    });
+
+    document.getElementById("staffRegisterButton").addEventListener("click", async () => {
+      if (!checkedStaffMobile) return;
+      const mobile = normaliseUKMobile(document.getElementById("staffMobile").value);
+      if (mobile !== checkedStaffMobile) {
+        staffStatus("Search this phone number before registering.", "error");
+        return;
+      }
+      if (!confirm("Register a new customer account for " + mobile + "?")) return;
+      const button = document.getElementById("staffRegisterButton");
+      button.disabled = true;
+      try {
+        const data = await staffApi("register_customer", { mobile });
+        if (!data.customer) throw new Error("Customer was not returned by the server.");
+        selectStaffCustomer(data.customer);
+        await loadStaffCustomer();
+        staffStatus("Customer registered.", "success");
+      } catch (error) {
+        staffStatus(error.message || "Customer registration failed.", "error");
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    document.getElementById("staffTransactionForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      if (!selectedStaffCustomer) return;
+      const amountText = document.getElementById("staffAmount").value.trim();
+      if (!/^(?:[0-9]+)(?:\\.[0-9]{1,2})?$/.test(amountText)) {
+        staffStatus("Enter a valid amount with at most two decimal places.", "error");
+        return;
+      }
+      const amountPence = Math.round(Number(amountText) * 100);
+      if (!Number.isSafeInteger(amountPence) || amountPence < 1 || amountPence > 49900) {
+        staffStatus("Amount must be between £0.01 and £499.", "error");
+        return;
+      }
+      const type = document.getElementById("staffTransactionType").value;
+      const note = document.getElementById("staffNote").value.trim();
+      const mobile = selectedStaffCustomer.mobile_number;
+      if (!confirm("Record " + type.replace(/_/g, " ") + " of " +
+                   formatGBPFromPence(amountPence) + " for " + mobile + "?")) return;
+      const button = document.getElementById("staffRecordButton");
+      button.disabled = true;
+      staffStatus("Recording transaction…");
+      try {
+        await staffApi("record_transaction", {
+          customerId: selectedStaffCustomer.id, type, amountPence, note
+        });
+        document.getElementById("staffAmount").value = "";
+        document.getElementById("staffNote").value = "";
+        staffStatus("Transaction recorded successfully.", "success");
+        await loadStaffCustomer();
+      } catch (error) {
+        staffStatus(error.message || "Transaction failed. Check the account before retrying.", "error");
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    async function staffLogout() {
+      const token = staffToken;
+      staffToken = "";
+      clearSelectedCustomer();
+      checkedStaffMobile = "";
+      document.getElementById("staffWorkspace").classList.add("hidden");
+      document.getElementById("staffLoginForm").classList.remove("hidden");
+      document.getElementById("staffPin").value = "";
+      if (token) {
+        try {
+          await fetch(STAFF_API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "x-staff-session": token },
+            body: JSON.stringify({ action: "logout" })
+          });
+          staffStatus("Staff signed out.", "success");
+        } catch {
+          staffStatus("Signed out of this page. Server logout could not be confirmed.", "error");
+        }
+      }
+    }
+
+    document.getElementById("staffLogoutButton").addEventListener("click", staffLogout);
+    document.getElementById("staffBackButton").addEventListener("click", () => {
+      // Do not leave an active staff session when returning to customer view.
+      staffLogout();
+      showLogin();
+      setStatus("");
+    });
   </script>
 </body>
 </html>
