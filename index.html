@@ -756,7 +756,7 @@
       const headers = { "Content-Type": "application/json", "apikey": STAFF_PUBLISHABLE_KEY };
       if (requireSession) {
         if (!staffToken) throw new Error("Staff session expired. Please sign in again.");
-        headers["x-staff-session"] = staffToken;
+        payload = { ...payload, sessionToken: staffToken };
       }
       let response;
       try {
@@ -1076,8 +1076,8 @@
         try {
           await fetch(STAFF_API_URL, {
             method: "POST",
-            headers: { "Content-Type": "application/json", "apikey": STAFF_PUBLISHABLE_KEY, "x-staff-session": token },
-            body: JSON.stringify({ action: "logout" })
+            headers: { "Content-Type": "application/json", "apikey": STAFF_PUBLISHABLE_KEY },
+            body: JSON.stringify({ action: "logout", sessionToken: token })
           });
           staffStatus("Staff signed out.", "success");
         } catch {
