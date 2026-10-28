@@ -909,7 +909,7 @@
       event.preventDefault();
       if (!selectedStaffCustomer) return;
       const amountText = document.getElementById("staffAmount").value.trim();
-      if (!/^(?:[0-9]+)(?:\\.[0-9]{1,2})?$/.test(amountText)) {
+      if (!/^(?:[0-9]+)(?:\.[0-9]{1,2})?$/.test(amountText)) {
         staffStatus("Enter a valid amount with at most two decimal places.", "error");
         return;
       }
