@@ -530,6 +530,17 @@
       }).format(number / 100);
     }
 
+    // Translate controlled transaction type labels only; never translate customer notes or account data.
+    function displayTransactionType(type) {
+      const labels = {
+        cash_payment: "Cash payment received",
+        debt_added: "Add debt",
+        debt_reduced: "Reduce debt (adjustment)"
+      };
+      const label = labels[type] || type || "Account transaction";
+      return window.churchTranslate ? window.churchTranslate(label) : label;
+    }
+
     function showLogin() {
       accountSection.classList.add("hidden");
       staffSection.classList.add("hidden");
@@ -663,7 +674,7 @@
 
           const title = document.createElement("strong");
           title.textContent =
-            entry.transaction_type || "Account transaction";
+            displayTransactionType(entry.transaction_type);
 
           details.appendChild(title);
 
@@ -814,7 +825,7 @@
         item.className = "history-item";
         const details = document.createElement("div");
         const heading = document.createElement("strong");
-        heading.textContent = (entry.transaction_type || "Transaction").replace(/_/g, " ");
+        heading.textContent = displayTransactionType(entry.transaction_type);
         details.appendChild(heading);
         if (entry.note) {
           const note = document.createElement("div");
