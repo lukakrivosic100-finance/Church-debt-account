@@ -574,7 +574,8 @@
 
       try {
         await api("request_otp", {
-          mobile_number: phone
+          mobile_number: phone,
+          locale: document.documentElement.lang || "en"
         });
 
         pendingPhone = phone;
