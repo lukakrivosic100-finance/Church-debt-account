@@ -249,8 +249,13 @@
         height: 45px;
       }
     }
+    #logoutVerseSection {text-align:center;background:#fffdf5;border-color:#d6b56d;padding:clamp(25px,5vw,42px)}
+    .logout-verse-cross {color:#94742f;font-size:52px;line-height:1.15;margin-bottom:12px}
+    #logoutVerseSection blockquote {color:#243c2f;font:italic clamp(20px,4vw,29px)/1.5 Georgia,"Times New Roman",serif;margin:15px auto;max-width:580px}
+    #logoutVerseSection .button {margin:22px auto 0}
   </style>
   <script src="languages.js" defer></script>
+  <script src="daily-verse.js" defer></script>
 </head>
 
 <body>
@@ -437,6 +442,14 @@
         <button class="button button-secondary" id="staffBackButton" type="button">Back to customer login</button>
       </div>
     </section>
+    <section id="logoutVerseSection" class="card hidden" tabindex="-1" aria-live="polite">
+      <div class="logout-verse-cross" aria-hidden="true">☦</div>
+      <h2 id="logoutVerseTitle">Daily Bible verse</h2>
+      <blockquote id="logoutVerseText"></blockquote>
+      <p class="muted" id="logoutVerseRef"></p>
+      <p class="muted small" id="logoutVerseStatus">You are signed out</p>
+      <button class="button" type="button" id="logoutVerseReturn">Return to sign in</button>
+    </section>
   </main>
 
   <footer class="site-footer">
@@ -541,7 +554,28 @@
       return window.churchTranslate ? window.churchTranslate(label) : label;
     }
 
+    const logoutVerseSection = document.getElementById("logoutVerseSection");
+    function showLogoutVerse() {
+      loginSection.classList.add("hidden");
+      accountSection.classList.add("hidden");
+      staffSection.classList.add("hidden");
+      const data = window.ChurchDailyVerse.get(document.documentElement.lang || "en");
+      document.getElementById("logoutVerseTitle").textContent = data.title;
+      document.getElementById("logoutVerseText").textContent = data.verse;
+      document.getElementById("logoutVerseRef").textContent = data.reference;
+      document.getElementById("logoutVerseStatus").textContent = data.signedOut;
+      document.getElementById("logoutVerseReturn").textContent = data.returnLabel;
+      logoutVerseSection.dir = data.direction;
+      logoutVerseSection.classList.remove("hidden");
+      logoutVerseSection.focus();
+    }
+    document.getElementById("logoutVerseReturn").addEventListener("click", () => {
+      logoutVerseSection.classList.add("hidden");
+      showLogin();
+      setStatus("");
+    });
     function showLogin() {
+      logoutVerseSection.classList.add("hidden");
       accountSection.classList.add("hidden");
       staffSection.classList.add("hidden");
       loginSection.classList.remove("hidden");
@@ -550,6 +584,7 @@
     }
 
     function showAccount() {
+      logoutVerseSection.classList.add("hidden");
       loginSection.classList.add("hidden");
       staffSection.classList.add("hidden");
       accountSection.classList.remove("hidden");
@@ -727,26 +762,17 @@
       .addEventListener("click", async () => {
         const button = document.getElementById("logoutButton");
         button.disabled = true;
-
         try {
-          if (sessionToken) {
-            await api("logout", {}, true);
-          }
-
+          if (sessionToken) await api("logout", {}, true);
+        } catch {
+          // Immediately end the browser session; the server token expires automatically.
+        } finally {
           sessionToken = "";
           pendingPhone = "";
           phoneInput.value = "";
           otpInput.value = "";
-
-          showLogin();
-          setStatus("You have signed out.", "success");
-        } catch (error) {
-          setStatus(
-            error.message || "Unable to sign out securely.",
-            "error"
-          );
-        } finally {
           button.disabled = false;
+          showLogoutVerse();
         }
       });
 
@@ -1085,27 +1111,19 @@
       document.getElementById("staffWorkspace").classList.add("hidden");
       document.getElementById("staffLoginForm").classList.remove("hidden");
       document.getElementById("staffPin").value = "";
-      if (token) {
-        try {
-          await fetch(STAFF_API_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "apikey": STAFF_PUBLISHABLE_KEY },
-            body: JSON.stringify({ action: "logout", sessionToken: token })
-          });
-          staffStatus("Staff signed out.", "success");
-        } catch {
-          staffStatus("Signed out of this page. Server logout could not be confirmed.", "error");
-        }
+      try {
+        if (token) await fetch(STAFF_API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "apikey": STAFF_PUBLISHABLE_KEY },
+          body: JSON.stringify({ action: "logout", sessionToken: token })
+        });
+      } catch {
+        // Browser session was cleared; the remote staff session expires automatically.
       }
+      showLogoutVerse();
     }
-
     document.getElementById("staffLogoutButton").addEventListener("click", staffLogout);
-    document.getElementById("staffBackButton").addEventListener("click", () => {
-      // Do not leave an active staff session when returning to customer view.
-      staffLogout();
-      showLogin();
-      setStatus("");
-    });
+    document.getElementById("staffBackButton").addEventListener("click", staffLogout);
   </script>
 </body>
 </html>
