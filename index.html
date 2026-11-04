@@ -627,10 +627,19 @@
       status.textContent = "Saving your name…";
       status.className = "status";
       try {
-        await api("set_name", { customer_name: customerName }, true);
-        status.textContent = "Name saved successfully.";
+        const saved = await api("set_name", { customer_name: customerName }, true);
+        if (!saved.customer?.customer_name) {
+          throw new Error("The server did not confirm that your name was saved. Please try again.");
+        }
+        input.value = saved.customer.customer_name;
+        status.textContent = "Your name has been saved. Loading your account…";
         status.className = "status success";
-        await refreshAccount();
+        try {
+          await refreshAccount();
+        } catch (loadError) {
+          status.textContent = "Your name was saved, but your account details could not load. Please try again.";
+          status.className = "status error";
+        }
       } catch (error) {
         status.textContent = error.message || "Could not save your name.";
         status.className = "status error";
@@ -707,7 +716,24 @@
         }
 
         sessionToken = result.token;
-        await refreshAccount();
+        // Use the verified OTP response first so customers without a saved name
+        // are taken straight to the name form without an extra account request.
+        const verifiedName = typeof result.customer?.customer_name === "string"
+          ? result.customer.customer_name.trim()
+          : "";
+        if (!verifiedName) {
+          loginSection.classList.add("hidden");
+          accountSection.classList.add("hidden");
+          staffSection.classList.add("hidden");
+          logoutVerseSection.classList.add("hidden");
+          nameSection.classList.remove("hidden");
+          document.getElementById("customerNameInput").value = "";
+          document.getElementById("customerNameStatus").textContent = "";
+          document.getElementById("customerNameStatus").className = "status";
+          document.getElementById("customerNameInput").focus();
+        } else {
+          await refreshAccount();
+        }
         setStatus("");
       } catch (error) {
         sessionToken = "";
@@ -722,10 +748,14 @@
 
     async function refreshAccount() {
       const accountResult = await api("account", {}, true);
-      if (!accountResult.customer?.customer_name) {
+      const savedName = typeof accountResult.customer?.customer_name === "string"
+        ? accountResult.customer.customer_name.trim()
+        : "";
+      if (!savedName) {
         loginSection.classList.add("hidden");
         accountSection.classList.add("hidden");
         staffSection.classList.add("hidden");
+        logoutVerseSection.classList.add("hidden");
         nameSection.classList.remove("hidden");
         document.getElementById("customerNameInput").focus();
         return;
