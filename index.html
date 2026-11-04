@@ -950,6 +950,7 @@
       event.preventDefault();
       loginSection.classList.add("hidden");
       accountSection.classList.add("hidden");
+      nameSection.classList.add("hidden");
       staffSection.classList.remove("hidden");
       staffStatus("");
       if (!staffToken) document.getElementById("staffPin").focus();
@@ -991,6 +992,7 @@
       event.preventDefault();
       const mobile = normaliseUKMobile(document.getElementById("staffMobile").value);
       clearSelectedCustomer();
+      document.getElementById("staffRegisterName").value = "";
       if (!mobile) {
         staffStatus("Enter a valid UK mobile number.", "error");
         return;
