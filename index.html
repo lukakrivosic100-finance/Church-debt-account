@@ -342,7 +342,7 @@
       <div class="card">
         <span class="pill">Customer account</span>
 
-        <h2 style="margin-top: 14px">Your Account</h2>
+        <h2 style="margin-top: 14px">Your Account — <span id="customerNameHeading"></span></h2>
 
         <p class="muted">
           Your current outstanding balance and payment history.
@@ -426,11 +426,17 @@
           </form>
           <div id="staffRegister" class="hidden">
             <p class="muted">No customer found for that number.</p>
+            <label for="staffRegisterName">Account holder's full name</label>
+            <input id="staffRegisterName" type="text" maxlength="100" autocomplete="name" required>
             <button class="button button-secondary" id="staffRegisterButton" type="button">Register this customer</button>
           </div>
           <div id="staffCustomer" class="hidden">
             <h3>Customer account</h3>
             <p id="staffCustomerLabel"></p>
+            <label for="staffCustomerName">Account holder's name</label>
+            <input id="staffCustomerName" type="text" maxlength="100" autocomplete="name" required>
+            <button class="button button-secondary" id="staffSaveCustomerNameButton" type="button">Save account name</button>
+            <p id="staffCustomerNameStatus" class="status" role="status" aria-live="polite"></p>
             <p><strong>Outstanding balance: <span id="staffBalance">Loading…</span></strong></p>
             <h3>Record an account transaction</h3>
             <form id="staffTransactionForm">
@@ -611,7 +617,7 @@
       const input = document.getElementById("customerNameInput");
       const button = document.getElementById("saveCustomerNameButton");
       const status = document.getElementById("customerNameStatus");
-      const customerName = input.value.trim().replace(/\\s+/g, " ");
+      const customerName = input.value.trim().replace(/\s+/g, " ");
       if (!customerName || customerName.length > 100) {
         status.textContent = "Please enter your name (up to 100 characters).";
         status.className = "status error";
@@ -724,7 +730,7 @@
         document.getElementById("customerNameInput").focus();
         return;
       }
-      document.getElementById("customerNameHeading");
+      document.getElementById("customerNameHeading").textContent = accountResult.customer.customer_name;
       const [balanceResult, historyResult] = await Promise.all([
         api("balance", {}, true),
         api("history", {}, true)
@@ -878,6 +884,9 @@
       selectedStaffCustomer = null;
       document.getElementById("staffCustomer").classList.add("hidden");
       document.getElementById("staffRegister").classList.add("hidden");
+      document.getElementById("staffCustomerName").value = "";
+      document.getElementById("staffCustomerNameStatus").textContent = "";
+      document.getElementById("staffCustomerNameStatus").className = "status";
     }
 
     async function loadStaffCustomer() {
@@ -931,7 +940,9 @@
     function selectStaffCustomer(customer) {
       clearSelectedCustomer();
       selectedStaffCustomer = customer;
-      document.getElementById("staffCustomerLabel").textContent = (customer.customer_name ? customer.customer_name + " — " : "Name not added yet — ") + customer.mobile_number;
+      document.getElementById("staffCustomerLabel").textContent =
+        (customer.customer_name ? customer.customer_name + " — " : "Name not added yet — ") + customer.mobile_number;
+      document.getElementById("staffCustomerName").value = customer.customer_name || "";
       document.getElementById("staffCustomer").classList.remove("hidden");
     }
 
@@ -1009,17 +1020,55 @@
         staffStatus("Search this phone number before registering.", "error");
         return;
       }
-      if (!confirm("Register a new customer account for " + mobile + "?")) return;
+      const customerName = document.getElementById("staffRegisterName").value.trim().replace(/\s+/g, " ");
+      if (!customerName || customerName.length > 100) {
+        staffStatus("Enter the customer's full name (up to 100 characters).", "error");
+        return;
+      }
+      if (!confirm("Register " + customerName + " (" + mobile + ") as a new customer account?")) return;
       const button = document.getElementById("staffRegisterButton");
       button.disabled = true;
       try {
-        const data = await staffApi("register_customer", { mobile });
+        const data = await staffApi("register_customer", { mobile, customer_name: customerName });
         if (!data.customer) throw new Error("Customer was not returned by the server.");
+        document.getElementById("staffRegisterName").value = "";
         selectStaffCustomer(data.customer);
         await loadStaffCustomer();
-        staffStatus("Customer registered.", "success");
+        staffStatus("Customer account registered with a name.", "success");
       } catch (error) {
         staffStatus(error.message || "Customer registration failed.", "error");
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    document.getElementById("staffSaveCustomerNameButton").addEventListener("click", async () => {
+      if (!selectedStaffCustomer) return;
+      const customerName = document.getElementById("staffCustomerName").value.trim().replace(/\s+/g, " ");
+      const status = document.getElementById("staffCustomerNameStatus");
+      if (!customerName || customerName.length > 100) {
+        status.textContent = "Enter a name between 1 and 100 characters.";
+        status.className = "status error";
+        return;
+      }
+      if (!confirm("Save account name as " + customerName + " for " + selectedStaffCustomer.mobile_number + "?")) return;
+      const button = document.getElementById("staffSaveCustomerNameButton");
+      button.disabled = true;
+      status.textContent = "Saving account name…";
+      status.className = "status";
+      try {
+        const data = await staffApi("update_customer_name", {
+          customerId: selectedStaffCustomer.id,
+          customer_name: customerName
+        });
+        if (!data.customer) throw new Error("The updated customer account was not returned.");
+        selectStaffCustomer(data.customer);
+        status.textContent = "Account name saved.";
+        status.className = "status success";
+        staffStatus("Customer account name updated.", "success");
+      } catch (error) {
+        status.textContent = error.message || "Could not update the account name.";
+        status.className = "status error";
       } finally {
         button.disabled = false;
       }
@@ -1041,8 +1090,9 @@
       const type = document.getElementById("staffTransactionType").value;
       const note = document.getElementById("staffNote").value.trim();
       const mobile = selectedStaffCustomer.mobile_number;
+      const accountName = selectedStaffCustomer.customer_name || "unnamed account";
       if (!confirm("Record " + type.replace(/_/g, " ") + " of " +
-                   formatGBPFromPence(amountPence) + " for " + mobile + "?")) return;
+                   formatGBPFromPence(amountPence) + " for " + accountName + " (" + mobile + ")?")) return;
       const button = document.getElementById("staffRecordButton");
       button.disabled = true;
       staffStatus("Recording transaction…");
