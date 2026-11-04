@@ -326,6 +326,18 @@
       <p id="loginStatus" class="status" role="status" aria-live="polite"></p>
     </section>
 
+
+    <section id="nameSection" class="card hidden">
+      <h2>What is your name?</h2>
+      <p class="muted">Please enter your name so the church can identify your account correctly. Your name will be linked to this verified mobile number.</p>
+      <form id="customerNameForm">
+        <label class="field-label" for="customerNameInput">Your full name</label>
+        <input id="customerNameInput" type="text" maxlength="100" autocomplete="name" required>
+        <button class="button" id="saveCustomerNameButton" type="submit">Save my name</button>
+      </form>
+      <p id="customerNameStatus" class="status" role="status" aria-live="polite"></p>
+    </section>
+
     <section id="accountSection" class="hidden">
       <div class="card">
         <span class="pill">Customer account</span>
@@ -467,6 +479,7 @@
 
     const loginSection = document.getElementById("loginSection");
     const accountSection = document.getElementById("accountSection");
+    const nameSection = document.getElementById("nameSection");
     const staffSection = document.getElementById("staffSection");
     const phoneForm = document.getElementById("phoneForm");
     const otpForm = document.getElementById("otpForm");
@@ -558,6 +571,7 @@
     function showLogoutVerse() {
       loginSection.classList.add("hidden");
       accountSection.classList.add("hidden");
+      nameSection.classList.add("hidden");
       staffSection.classList.add("hidden");
       const data = window.ChurchDailyVerse.get(document.documentElement.lang || "en");
       document.getElementById("logoutVerseTitle").textContent = data.title;
@@ -577,6 +591,7 @@
     function showLogin() {
       logoutVerseSection.classList.add("hidden");
       accountSection.classList.add("hidden");
+      nameSection.classList.add("hidden");
       staffSection.classList.add("hidden");
       loginSection.classList.remove("hidden");
       phoneForm.classList.remove("hidden");
@@ -587,8 +602,36 @@
       logoutVerseSection.classList.add("hidden");
       loginSection.classList.add("hidden");
       staffSection.classList.add("hidden");
+      nameSection.classList.add("hidden");
       accountSection.classList.remove("hidden");
     }
+
+    document.getElementById("customerNameForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const input = document.getElementById("customerNameInput");
+      const button = document.getElementById("saveCustomerNameButton");
+      const status = document.getElementById("customerNameStatus");
+      const customerName = input.value.trim().replace(/\\s+/g, " ");
+      if (!customerName || customerName.length > 100) {
+        status.textContent = "Please enter your name (up to 100 characters).";
+        status.className = "status error";
+        return;
+      }
+      button.disabled = true;
+      status.textContent = "Saving your name…";
+      status.className = "status";
+      try {
+        await api("set_name", { customer_name: customerName }, true);
+        status.textContent = "Name saved successfully.";
+        status.className = "status success";
+        await refreshAccount();
+      } catch (error) {
+        status.textContent = error.message || "Could not save your name.";
+        status.className = "status error";
+      } finally {
+        button.disabled = false;
+      }
+    });
 
     phoneForm.addEventListener("submit", async event => {
       event.preventDefault();
@@ -672,6 +715,16 @@
     });
 
     async function refreshAccount() {
+      const accountResult = await api("account", {}, true);
+      if (!accountResult.customer?.customer_name) {
+        loginSection.classList.add("hidden");
+        accountSection.classList.add("hidden");
+        staffSection.classList.add("hidden");
+        nameSection.classList.remove("hidden");
+        document.getElementById("customerNameInput").focus();
+        return;
+      }
+      document.getElementById("customerNameHeading");
       const [balanceResult, historyResult] = await Promise.all([
         api("balance", {}, true),
         api("history", {}, true)
@@ -878,7 +931,7 @@
     function selectStaffCustomer(customer) {
       clearSelectedCustomer();
       selectedStaffCustomer = customer;
-      document.getElementById("staffCustomerLabel").textContent = customer.mobile_number;
+      document.getElementById("staffCustomerLabel").textContent = (customer.customer_name ? customer.customer_name + " — " : "Name not added yet — ") + customer.mobile_number;
       document.getElementById("staffCustomer").classList.remove("hidden");
     }
 
